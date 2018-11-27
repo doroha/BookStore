@@ -13,8 +13,10 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> {
 
 	boolean isDone=false;
-
+int x;
 	public Future() {
+		//lin the qeen
+
 		//TODO: implement this
 	}
 	
