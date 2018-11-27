@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 
+import java.util.LinkedList;
 
 /**
  * Passive data-object representing the store inventory.
@@ -12,13 +13,18 @@ package bgu.spl.mics.application.passiveObjects;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class Inventory {
+public class Inventory{
+	private LinkedList<BookInventoryInfo> inventoryList;
 
+	public Inventory(){
+		this.inventoryList = new LinkedList<BookInventoryInfo>();
+
+	}
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		//TODO: Implement this
+
 		return null;
 	}
 	
@@ -29,8 +35,7 @@ public class Inventory {
      * @param inventory 	Data structure containing all data necessary for initialization
      * 						of the inventory.
      */
-	public void load (BookInventoryInfo[ ] inventory ) {
-		
+	public void load (BookInventoryInfo[] inventory ) {
 	}
 	
 	/**
@@ -42,7 +47,6 @@ public class Inventory {
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		
 		return null;
 	}
 	
@@ -55,7 +59,8 @@ public class Inventory {
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
-		//TODO: Implement this
+
+		//while(inventoryL	)
 		return -1;
 	}
 	

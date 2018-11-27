@@ -9,37 +9,49 @@ import java.util.List;
  * You may add fields and methods to this class as you see fit (including public methods).
  */
 public class Customer {
-
+	private String name;
+	private int Id;
+	private String address;
+	private int distance;
+	private int creditNum;
+	private int amount;
+	private List<OrderReceipt> receipts;
+	public Customer (String name, int Id, String address, int distance,
+					 int creditNum, int amount, List<OrderReceipt> receipts ){
+		this.name= name;
+		this.Id=Id;
+		this.address=address;
+		this.distance=distance;
+		this.creditNum=creditNum;
+		this.amount=amount;
+		this.receipts=receipts;
+	}
 	/**
      * Retrieves the name of the customer.
      */
 	public String getName() {
-		// TODO Implement this
-		return null;
+		return name;
 	}
 
 	/**
      * Retrieves the ID of the customer  . 
      */
 	public int getId() {
-		// TODO Implement this
-		return 0;
+		return Id;
 	}
 	
 	/**
      * Retrieves the address of the customer.  
      */
 	public String getAddress() {
-		// TODO Implement this
-		return null;
+		return address;
 	}
 	
 	/**
      * Retrieves the distance of the customer from the store.  
      */
 	public int getDistance() {
-		// TODO Implement this
-		return 0;
+		return distance;
 	}
 
 	
@@ -49,8 +61,7 @@ public class Customer {
      * @return A list of receipts.
      */
 	public List<OrderReceipt> getCustomerReceiptList() {
-		// TODO Implement this
-		return null;
+		return receipts;
 	}
 	
 	/**
@@ -59,16 +70,14 @@ public class Customer {
      * @return Amount of money left.   
      */
 	public int getAvailableCreditAmount() {
-		// TODO Implement this
-		return 0;
+		return amount;
 	}
 	
 	/**
      * Retrieves this customers credit card serial number.    
      */
 	public int getCreditNumber() {
-		// TODO Implement this
-		return 0;
+		return creditNum;
 	}
 	
 }

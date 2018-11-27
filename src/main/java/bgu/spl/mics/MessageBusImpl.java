@@ -31,6 +31,7 @@ public class MessageBusImpl implements MessageBus {
 
 	}
 
+	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		// TODO Auto-generated method stub
@@ -54,4 +55,7 @@ public class MessageBusImpl implements MessageBus {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
+
 }

@@ -6,16 +6,27 @@ package bgu.spl.mics.application.passiveObjects;
  * <p>
  * You may add fields and methods to this class as you see fit (including public methods).
  */
-public class BookInventoryInfo {
 
+
+public class BookInventoryInfo{
 	/**
      * Retrieves the title of this book.
      * <p>
      * @return The title of this book.   
      */
+	private int price;
+	private int amount;
+	private String title;
+
+	public BookInventoryInfo(int price, int amount, String title){
+		this.price = price;
+		this.amount=amount;
+		this.title=title;
+	}
+
+
 	public String getBookTitle() {
-		// TODO Implement this
-		return null;
+		return title;
 	}
 
 	/**
@@ -24,8 +35,7 @@ public class BookInventoryInfo {
      * @return amount of available books.      
      */
 	public int getAmountInInventory() {
-		// TODO Implement this
-		return 0;
+		return amount;
 	}
 
 	/**
@@ -34,8 +44,7 @@ public class BookInventoryInfo {
      * @return the price of the book.
      */
 	public int getPrice() {
-		// TODO Implement this
-		return 0;
+		return price;
 	}
 	
 	

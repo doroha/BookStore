@@ -6,19 +6,19 @@ package bgu.spl.mics.application.passiveObjects;
  * <p>
  * You may add ONLY private fields and methods to this class.
  */
-public class DeliveryVehicle {
-	/**
-     * Constructor.   
-     */
+public class DeliveryVehicle extends Thread {
+	private int license;
+	private int speed;
+
 	 public DeliveryVehicle(int license, int speed) {
-		// TODO Implement this
+		this.license=license;
+		this.speed=speed;
 	  }
 	/**
      * Retrieves the license of this delivery vehicle.   
      */
 	public int getLicense() {
-		// TODO Implement this
-		return 0;
+		return license;
 	}
 	
 	/**
@@ -27,8 +27,7 @@ public class DeliveryVehicle {
      * @return Number of ticks needed for 1 Km.
      */
 	public int getSpeed() {
-		// TODO Implement this
-		return 0;
+		return speed;
 	}
 	
 	/**
@@ -39,6 +38,9 @@ public class DeliveryVehicle {
      * @param distance	The distance from the store to the customer.
      */
 	public void deliver(String address, int distance) {
-		// TODO Implement this
+		try {
+			Thread.sleep(distance / speed);
+		}catch (Exception e){};
+
 	}
 }
