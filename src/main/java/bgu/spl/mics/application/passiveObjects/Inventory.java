@@ -1,7 +1,10 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
 
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Passive data-object representing the store inventory.
@@ -14,20 +17,27 @@ import java.util.LinkedList;
  * You can add ONLY private fields and methods to this class as you see fit.
  */
 public class Inventory{
-	private LinkedList<BookInventoryInfo> inventoryList;
 
-	public Inventory(){
-		this.inventoryList = new LinkedList<BookInventoryInfo>();
+  private  Map <String, Integer > inventory;
 
-	}
+    private static Inventory instance=null;
+    private BookInventoryInfo[] books;
+
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-
-		return null;
+        if(instance==null){
+            return SingletonH.inventoryNew;
+        }
+        return instance;
 	}
-	
+	private static class SingletonH{
+	    private static Inventory inventoryNew= new Inventory();
+    }
+	private Inventory(){
+	    books=new BookInventoryInfo[]{};
+    }
 	/**
      * Initializes the store inventory. This method adds all the items given to the store
      * inventory.
@@ -36,6 +46,9 @@ public class Inventory{
      * 						of the inventory.
      */
 	public void load (BookInventoryInfo[] inventory ) {
+	    for(BookInventoryInfo info :inventory){
+	      //  inventory.put(info.getBookTitle(),info);
+        }
 	}
 	
 	/**
@@ -47,10 +60,15 @@ public class Inventory{
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		return null;
+	  //  if((inventory.containsKey(book))&& (inventory.get(book).getAmountInInventory()>0))
+        {
+           // inventory.get(book).setAmount(inventory.get(book).getAmountInInventory()-1);
+            return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
+        }
+		//else
+		   // return OrderResult.valueOf("NOT_IN STOCK");
 	}
-	
-	
+
 	
 	/**
      * Checks if a certain book is available in the inventory.
@@ -59,10 +77,15 @@ public class Inventory{
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
+      //  if((inventory.containsKey(book))&& (inventory.get(book).getAmountInInventory()>0)){
 
-		//while(inventoryL	)
-		return -1;
-	}
+
+           // return (inventory.get(book).getPrice());
+        //}
+	//	else {
+            return -1;
+        }
+	//}
 	
 	/**
      * 
