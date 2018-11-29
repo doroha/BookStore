@@ -13,14 +13,20 @@ public class OrderReceipt {
 	private int customerId;
 	private String bookTitle;
 	private int price;
+	private int issuedTic;
+	private int	orderTic;
+	private int processTic;
 
-	public OrderReceipt(int orderId, String seller, int customerId, String bookTitle, int price){
+	public OrderReceipt(int orderId, String seller, int customerId, String bookTitle, int price, int issuedTic,
+						int orderTic, int processTic){
 		this.orderId=orderId;
 		this.seller=seller;
 		this.customerId=customerId;
 		this.bookTitle=bookTitle;
 		this.price=price;
-
+		this.processTic=processTic;
+		this.orderTic=orderTic;
+		this.issuedTic=issuedTic;
 	}
 	
 	/**
@@ -64,16 +70,14 @@ public class OrderReceipt {
      * Retrieves the tick in which this receipt was issued.
      */
 	public int getIssuedTick() {
-		// TODO Implement this
-		return 0;
+		return issuedTic;
 	}
 	
 	/**
      * Retrieves the tick in which the customer sent the purchase request.
      */
 	public int getOrderTick() {
-		// TODO Implement this
-		return 0;
+		return orderTic;
 	}
 	
 	/**
@@ -81,7 +85,6 @@ public class OrderReceipt {
      * processing the order.
      */
 	public int getProcessTick() {
-		// TODO Implement this
-		return 0;
+		return processTic;
 	}
 }

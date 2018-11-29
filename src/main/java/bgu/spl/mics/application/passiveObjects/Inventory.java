@@ -2,7 +2,11 @@ package bgu.spl.mics.application.passiveObjects;
 
 import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
 
+import java.io.*;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.io.FileOutputStream;
 import java.util.Map;
 
 
@@ -18,10 +22,9 @@ import java.util.Map;
  */
 public class Inventory{
 
-  private  Map <String, Integer > inventory;
-
-    private static Inventory instance=null;
-    private BookInventoryInfo[] books;
+  private List<BookInventoryInfo> booksList;
+  private static Inventory instance=null;
+  private BookInventoryInfo[] books;
 
 	/**
      * Retrieves the single instance of this class.
@@ -37,6 +40,7 @@ public class Inventory{
     }
 	private Inventory(){
 	    books=new BookInventoryInfo[]{};
+		booksList=new LinkedList<>();
     }
 	/**
      * Initializes the store inventory. This method adds all the items given to the store
@@ -45,9 +49,10 @@ public class Inventory{
      * @param inventory 	Data structure containing all data necessary for initialization
      * 						of the inventory.
      */
+
 	public void load (BookInventoryInfo[] inventory ) {
 	    for(BookInventoryInfo info :inventory){
-	      //  inventory.put(info.getBookTitle(),info);
+	      booksList.add(info);
         }
 	}
 	
@@ -60,13 +65,13 @@ public class Inventory{
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-	  //  if((inventory.containsKey(book))&& (inventory.get(book).getAmountInInventory()>0))
-        {
-           // inventory.get(book).setAmount(inventory.get(book).getAmountInInventory()-1);
-            return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
-        }
-		//else
-		   // return OrderResult.valueOf("NOT_IN STOCK");
+		for (int i = 0; i < booksList.size(); i++) {
+			if (booksList.get(i).getBookTitle() == book && booksList.get(i).getAmountInInventory() > 0) {
+				booksList.get(i).setAmount(booksList.get(i).getAmountInInventory() - 1);
+				return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
+			}
+		}
+		return OrderResult.valueOf("NOT_IN STOCK");
 	}
 
 	
@@ -77,15 +82,13 @@ public class Inventory{
      * @return the price of the book if it is available, -1 otherwise.
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
-      //  if((inventory.containsKey(book))&& (inventory.get(book).getAmountInInventory()>0)){
-
-
-           // return (inventory.get(book).getPrice());
-        //}
-	//	else {
-            return -1;
-        }
-	//}
+			for(int i= 0 ; i<booksList.size();i++) {
+				if (booksList.get(i).getBookTitle() == book && booksList.get(i).getAmountInInventory() > 0) {
+					return (booksList.get(i).getPrice());
+				}
+			}
+			return -1;
+	}
 	
 	/**
      * 
@@ -95,7 +98,26 @@ public class Inventory{
      * their respective available amount in the inventory. 
      * This method is called by the main method in order to generate the output.
      */
-	public void printInventoryToFile(String filename){
-		//TODO: Implement this
+	public void printInventoryToFile (String filename){
+		HashMap<String, Integer> hashBook=new HashMap<>();
+		for(BookInventoryInfo b: books){
+			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
+		}
+		try {
+			File file = new File("outExample.txt");
+			FileOutputStream outputF = new FileOutputStream(file);
+			PrintWriter printWrite = new PrintWriter(outputF);
+			for (Map.Entry<String, Integer> m : hashBook.entrySet()) {
+				printWrite.println(m.getKey() + ", amount: " + m.getValue());
+			}
+			printWrite.flush();
+			printWrite.close();
+			outputF.close();
+		}catch (Exception e){}
+
+		}
+
 	}
-}
+
+
+
