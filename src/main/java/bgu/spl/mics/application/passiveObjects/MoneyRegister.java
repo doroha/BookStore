@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.passiveObjects;
 
-
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.WeakHashMap;
 
 /**
  * Passive object representing the store finance management. 
@@ -12,13 +15,25 @@ package bgu.spl.mics.application.passiveObjects;
  * You can add ONLY private fields and methods to this class as you see fit.
  */
 public class MoneyRegister {
-	
-	/**
-     * Retrieves the single instance of this class.
-     */
+
+	private List<OrderReceipt> receipts;
+	private static MoneyRegister instance=null;
+	private int total_Earnings;
+
+	private static class SingletonH{
+		private static MoneyRegister moneyNew= new MoneyRegister();
+	}
+
 	public static MoneyRegister getInstance() {
-		//TODO: Implement this
-		return null;
+		if(instance==null){
+			return SingletonH.moneyNew;
+		}
+		return instance;
+	}
+
+	private MoneyRegister(){
+		receipts=new LinkedList<>();
+		total_Earnings=0;
 	}
 	
 	/**
@@ -27,15 +42,15 @@ public class MoneyRegister {
      * @param r		The receipt to save in the money register.
      */
 	public void file (OrderReceipt r) {
-		//TODO: Implement this.
+
+     //jason make file
+
 	}
-	
 	/**
      * Retrieves the current total earnings of the store.  
      */
 	public int getTotalEarnings() {
-		//TODO: Implement this
-		return 0;
+		return total_Earnings;
 	}
 	
 	/**
@@ -44,7 +59,10 @@ public class MoneyRegister {
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-		// TODO Implement this
+		if (c.getAvailableCreditAmount()>=amount){
+			c.chargeCreditCard(amount);
+			total_Earnings+=amount;
+		}
 	}
 	
 	/**
@@ -53,6 +71,6 @@ public class MoneyRegister {
      * This method is called by the main method in order to generate the output.. 
      */
 	public void printOrderReceipts(String filename) {
-		//TODO: Implement this
+		//Jason
 	}
 }

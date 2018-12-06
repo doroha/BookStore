@@ -3,8 +3,11 @@ package bgu.spl.mics.application.passiveObjects;
 import bgu.spl.mics.Future;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
+
 /**
  * Passive object representing the resource manager.
  * You must not alter any of the given public methods of this class.
@@ -16,11 +19,8 @@ import java.util.List;
  */
 public class ResourcesHolder {
 	private static ResourcesHolder instance=null;
-	private  List<DeliveryVehicle > vehicleList;
+	private Vector<DeliveryVehicle> vehiclesColec;
 
-	/**
-     * Retrieves the single instance of this class.
-     */
 	public static ResourcesHolder getInstance() {
 		if(instance==null){
 			return singletonHold.resource;
@@ -30,8 +30,8 @@ public class ResourcesHolder {
 	private static class singletonHold{
 		private static ResourcesHolder resource= new ResourcesHolder();
 	}
-	private void Resource(){
-		vehicleList=new LinkedList<>();
+	private ResourcesHolder(){
+		vehiclesColec=new Vector<>();
 	}
 
 	/**
@@ -41,8 +41,14 @@ public class ResourcesHolder {
      * @return 	{@link Future<DeliveryVehicle>} object which will resolve to a 
      * 			{@link DeliveryVehicle} when completed.   
      */
-	public Future<DeliveryVehicle> acquireVehicle() {
-		//TODO: Implement this
+	public Future<DeliveryVehicle> acquireVehicle() {  //TODO
+		for (DeliveryVehicle vehicle:vehiclesColec) {
+			if (vehicle.isOpen()) {
+				Future<DeliveryVehicle>future=new Future<>();
+
+			}
+		}
+
 		return null;
 	}
 	
@@ -53,22 +59,15 @@ public class ResourcesHolder {
      * @param vehicle	{@link DeliveryVehicle} to be released.
      */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		if(vehicleList.contains(vehicle)){
-			vehicleList.remove(vehicle);
-		}
-
-
+		vehicle.openVehicle();
 	}
-	
+
 	/**
      * Receives a collection of vehicles and stores them.
      * <p>
      * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
      */
 	public void load(DeliveryVehicle[] vehicles) {
-		for(DeliveryVehicle v : vehicles){
-			vehicleList.add(v);
-		}
+    Collections.addAll(vehiclesColec, vehicles);
 	}
-
 }

@@ -16,6 +16,7 @@ public class OrderReceipt {
 	private int issuedTic;
 	private int	orderTic;
 	private int processTic;
+	private boolean process=false;
 
 	public OrderReceipt(int orderId, String seller, int customerId, String bookTitle, int price, int issuedTic,
 						int orderTic, int processTic){
@@ -27,6 +28,7 @@ public class OrderReceipt {
 		this.processTic=processTic;
 		this.orderTic=orderTic;
 		this.issuedTic=issuedTic;
+		this.process=false;
 	}
 	
 	/**
@@ -71,20 +73,20 @@ public class OrderReceipt {
      */
 	public int getIssuedTick() {
 		return issuedTic;
-	}
+	} // TOdO
 	
 	/**
      * Retrieves the tick in which the customer sent the purchase request.
      */
 	public int getOrderTick() {
 		return orderTic;
-	}
+	} // TOdO
 	
 	/**
      * Retrieves the tick in which the treating selling service started 
      * processing the order.
      */
-	public int getProcessTick() {
+	public int getProcessTick() {   // TOdO
 		return processTic;
 	}
 }

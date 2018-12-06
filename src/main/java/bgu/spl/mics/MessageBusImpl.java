@@ -66,7 +66,7 @@ public class MessageBusImpl implements MessageBus {
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		if (microServiceMsg_HashMap.contains(m) && !broadcast_Hashmap.get(type).contains(m)){
 			try {
-				broadcast_Hashmap.get(type).putLast(m);
+				broadcast_Hashmap.get(type).put(m);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

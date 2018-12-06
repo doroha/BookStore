@@ -26,9 +26,6 @@ public class Inventory{
   private static Inventory instance=null;
   private BookInventoryInfo[] books;
 
-	/**
-     * Retrieves the single instance of this class.
-     */
 	public static Inventory getInstance() {
         if(instance==null){
             return SingletonH.inventoryNew;
@@ -114,9 +111,7 @@ public class Inventory{
 			printWrite.close();
 			outputF.close();
 		}catch (Exception e){}
-
 		}
-
 	}
 
 

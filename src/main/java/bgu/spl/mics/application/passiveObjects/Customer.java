@@ -79,5 +79,8 @@ public class Customer {
 	public int getCreditNumber() {
 		return creditNum;
 	}
-	
+
+	public void chargeCreditCard(int am){
+		this.amount=this.amount - am;
+	}
 }

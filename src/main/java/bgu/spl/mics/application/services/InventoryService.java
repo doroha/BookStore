@@ -4,6 +4,8 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * InventoryService is in charge of the book inventory and stock.
  * Holds a reference to the {@link Inventory} singleton of the store.
@@ -18,21 +20,22 @@ public class InventoryService extends MicroService{
 
 	private Inventory inventory;
 
+
 	public InventoryService() {
 		super("InventoryService");
-
 
 	}
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+
+
+
+
 	}
 
 	@Override
-	protected void doEventCall(Callback callback) {
-		callback=(object)->{};
+	protected void doEventCall(Callback callback) {callback=(object)->{   };
 	}
 
 	@Override
