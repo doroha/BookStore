@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
+import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
+
 
 /**
  * APIService is in charge of the connection between a client and the store.
@@ -13,15 +16,24 @@ import bgu.spl.mics.MicroService;
  */
 public class APIService extends MicroService{
 
+
 	public APIService() {
 		super("Change_This_Name");
-		// TODO Implement this
-	}
 
+	}
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+	}
+
+	protected void doEventCall (Callback callback){  //implementation of callback for event
+
+		callback = (object) -> {};
+ 	}
+
+	@Override
+	protected void doBroadcatCall(Callback callback) {
+
+		callback = (object) ->{};
 	}
 
 }

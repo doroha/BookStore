@@ -13,12 +13,8 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> {
 
 	boolean isDone=false;
-int x;
-	public Future() {
-		//lin the qeen
-
-		//TODO: implement this
-	}
+	T result_F;
+	public Future() {}
 	
 	/**
      * retrieves the result the Future object holds if it has been resolved.
@@ -29,23 +25,29 @@ int x;
      * 	       
      */
 	public T get() {
-		//TODO: implement this.
-		return null;
+
+		while (!isDone)
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		return result_F;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
 	public void resolve (T result) {
-		//TODO: implement this.
+		result_F=result;
+		isDone=true;
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		//TODO: implement this.
-		return false;
+		return isDone;
 	}
 	
 	/**
@@ -60,7 +62,8 @@ int x;
      *         elapsed, return null.
      */
 	public T get(long timeout, TimeUnit unit) {
-		//TODO: implement this.
+
+
 		return null;
 	}
 

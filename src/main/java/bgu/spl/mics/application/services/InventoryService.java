@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.passiveObjects.Inventory;
 
 /**
  * InventoryService is in charge of the book inventory and stock.
@@ -14,15 +16,28 @@ import bgu.spl.mics.MicroService;
 
 public class InventoryService extends MicroService{
 
+	private Inventory inventory;
+
 	public InventoryService() {
-		super("Change_This_Name");
-		// TODO Implement this
+		super("InventoryService");
+
+
 	}
 
 	@Override
 	protected void initialize() {
 		// TODO Implement this
 		
+	}
+
+	@Override
+	protected void doEventCall(Callback callback) {
+		callback=(object)->{};
+	}
+
+	@Override
+	protected void doBroadcatCall(Callback callback) {
+
 	}
 
 }
