@@ -28,19 +28,5 @@ public class InventoryService extends MicroService{
 
 	@Override
 	protected void initialize() {
-
-
-
-
 	}
-
-	@Override
-	protected void doEventCall(Callback callback) {callback=(object)->{   };
-	}
-
-	@Override
-	protected void doBroadcatCall(Callback callback) {
-
-	}
-
 }

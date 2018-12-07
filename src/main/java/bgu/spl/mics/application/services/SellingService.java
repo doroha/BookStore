@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.Messages.BookOrderEvent;
 
 /**
  * Selling service in charge of taking orders from customers.
@@ -21,8 +23,10 @@ public class SellingService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+		Callback<BookOrderEvent> bookOrderEventCallback= (BookOrderEvent b) -> {
+			//defines what to do with the event
+		};
+		subscribeEvent(BookOrderEvent.class,bookOrderEventCallback);
 	}
 
 }

@@ -60,10 +60,9 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) {  //TODO
-
-
-		return null;
+	public T get(long timeout, TimeUnit unit) throws InterruptedException{  //TODO
+		if (!isDone)
+			unit.timedWait(this,timeout);
+		return result_F;
 	}
-
 }

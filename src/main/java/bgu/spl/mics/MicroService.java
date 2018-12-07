@@ -27,8 +27,8 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    private ConcurrentHashMap<Class<? extends Class>,Callback> eventMsgM;
-    private ConcurrentHashMap<Class<? extends Class>,Callback> broadcastM;
+    private ConcurrentHashMap<Class,Callback> eventMsgM;
+    private ConcurrentHashMap<Class,Callback> broadcastM;
     private MessageBusImpl msgBus;
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -176,19 +176,13 @@ public abstract class MicroService implements Runnable {
                 if (eventMsgM.contains(m)){
                     callback=eventMsgM.get(m.getClass());
                //     callback.call(m);
-                    doEventCall(callback);
                 }
                 else{
                     callback=broadcastM.get(m);
-                    doBroadcatCall(callback);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
-
-    protected abstract void doEventCall(Callback callback);  //Event callBack
-
-    protected abstract void doBroadcatCall(Callback callback); //Broadcast callback
 }

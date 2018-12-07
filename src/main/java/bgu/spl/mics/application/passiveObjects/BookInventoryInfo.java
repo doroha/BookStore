@@ -24,7 +24,6 @@ public class BookInventoryInfo{
 		this.title=title;
 	}
 
-
 	public String getBookTitle() {
 		return title;
 	}
@@ -49,8 +48,4 @@ public class BookInventoryInfo{
 	public void setAmount(int amount){
 		this.amount=amount;
 	}
-	
-	
-
-	
 }

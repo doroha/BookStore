@@ -1,12 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.Future;
-
-import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Passive object representing the resource manager.
@@ -23,13 +18,15 @@ public class ResourcesHolder {
 
 	public static ResourcesHolder getInstance() {
 		if(instance==null){
-			return singletonHold.resource;
+			return singletonHold.instance;
 		}
 		return instance;
 	}
+
 	private static class singletonHold{
-		private static ResourcesHolder resource= new ResourcesHolder();
+		private static ResourcesHolder instance= new ResourcesHolder();
 	}
+
 	private ResourcesHolder(){
 		vehiclesColec=new Vector<>();
 	}
@@ -43,12 +40,8 @@ public class ResourcesHolder {
      */
 	public Future<DeliveryVehicle> acquireVehicle() {  //TODO
 		for (DeliveryVehicle vehicle:vehiclesColec) {
-			if (vehicle.isOpen()) {
-				Future<DeliveryVehicle>future=new Future<>();
 
-			}
 		}
-
 		return null;
 	}
 	
@@ -59,7 +52,6 @@ public class ResourcesHolder {
      * @param vehicle	{@link DeliveryVehicle} to be released.
      */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		vehicle.openVehicle();
 	}
 
 	/**

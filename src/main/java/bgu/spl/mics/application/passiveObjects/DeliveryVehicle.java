@@ -9,12 +9,10 @@ package bgu.spl.mics.application.passiveObjects;
 public class DeliveryVehicle extends Thread {
 	private int license;
 	private int speed;
-    public boolean open;
 
 	 public DeliveryVehicle(int license, int speed) {
 		this.license=license;
 		this.speed=speed;
-		open=false;
 	  }
 	/**
      * Retrieves the license of this delivery vehicle.   
@@ -41,15 +39,7 @@ public class DeliveryVehicle extends Thread {
      */
 	public void deliver(String address, int distance) {  // i'm not sure TODO
 		try {
-			open=false;
 			Thread.sleep(distance / speed);
 		}catch (Exception e){};
-	}
-	public void openVehicle(){ // i'm not sure TODO
-		open=true;
-		notify();
-	}
-	public boolean isOpen(){ // i'm not sure TODO
-		return open;
 	}
 }
