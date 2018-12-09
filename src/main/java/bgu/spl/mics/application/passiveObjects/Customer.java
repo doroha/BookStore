@@ -1,5 +1,8 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import javafx.util.Pair;
+
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,14 +20,14 @@ public class Customer {
 	private int amount;
 	private List<OrderReceipt> receipts;
 	public Customer (String name, int Id, String address, int distance,
-					 int creditNum, int amount, List<OrderReceipt> receipts ){
+					 int creditNum, int amount ){
 		this.name= name;
 		this.Id=Id;
 		this.address=address;
 		this.distance=distance;
 		this.creditNum=creditNum;
 		this.amount=amount;
-		this.receipts=receipts;
+		this.receipts=new LinkedList<>();
 	}
 	/**
      * Retrieves the name of the customer.
@@ -83,4 +86,10 @@ public class Customer {
 	public void chargeCreditCard(int am){
 		this.amount=this.amount - am;
 	}
+//
+//	public void purchaseRequest (BookInventoryInfo book,Integer tick){
+//		Pair<BookInventoryInfo,Integer> newPair=new Pair<>(book,tick);
+//		orders.add(newPair);
+//	}
+//	public List<Pair> getOrders(){return this.orders;}
 }

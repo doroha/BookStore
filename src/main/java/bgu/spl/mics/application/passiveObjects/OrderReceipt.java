@@ -8,7 +8,7 @@ package bgu.spl.mics.application.passiveObjects;
  * You may add fields and methods to this class as you see fit (including public methods).
  */
 public class OrderReceipt {
-	private int orderId;
+	private int orderId=0;
 	private String seller;
 	private int customerId;
 	private String bookTitle;
@@ -16,11 +16,10 @@ public class OrderReceipt {
 	private int issuedTic;
 	private int	orderTic;
 	private int processTic;
-	private boolean process=false;
 
-	public OrderReceipt(int orderId, String seller, int customerId, String bookTitle, int price, int issuedTic,
+	public OrderReceipt(int customerId, String bookTitle, int price, int issuedTic,
 						int orderTic, int processTic){
-		this.orderId=orderId;
+		this.orderId++;
 		this.seller=seller;
 		this.customerId=customerId;
 		this.bookTitle=bookTitle;
@@ -28,7 +27,6 @@ public class OrderReceipt {
 		this.processTic=processTic;
 		this.orderTic=orderTic;
 		this.issuedTic=issuedTic;
-		this.process=false;
 	}
 	
 	/**

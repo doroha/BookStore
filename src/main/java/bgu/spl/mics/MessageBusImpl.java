@@ -12,18 +12,15 @@ import java.util.concurrent.*;
 public class MessageBusImpl implements MessageBus {
 
 	static private MessageBusImpl instance;
-	private ConcurrentHashMap<Class<?>,BlockingDeque<MicroService>> msgEvent_Hashmap; //event -> MicroServices
-	private ConcurrentHashMap<Class<?>,BlockingDeque<MicroService>> broadcast_Hashmap; //broadcast -> MicroServices
-	private ConcurrentHashMap<MicroService,BlockingDeque<Message>> microServiceMsg_HashMap; //MicroService -> Message
-	private ConcurrentHashMap<Event<?>,Future> eventFutre_HashMap; //Event -> Future
+	private ConcurrentHashMap<Class<?>,BlockingQueue<MicroService>> msgEvent_Hashmap; //event -> MicroServices
+	private ConcurrentHashMap<Class<?>,BlockingQueue<MicroService>> broadcast_Hashmap; //broadcast -> MicroServices
+	private ConcurrentHashMap<MicroService,BlockingQueue<Message>> microServiceMsg_HashMap; //MicroService -> Message
+	private ConcurrentHashMap<Class<? extends Event>, Future> eventFutre_HashMap; //Event -> Future
 	private Object lock1=new Object();
 	private Object lock2=new Object();
 
 	public static MessageBusImpl getInstance(){
-		if (instance==null){
 			return SingletonHld.instanceNew;
-		}
-		return instance;
 	}
 	private static class SingletonHld{
 		private static MessageBusImpl instanceNew= new MessageBusImpl();
@@ -33,7 +30,7 @@ public class MessageBusImpl implements MessageBus {
 		msgEvent_Hashmap=new ConcurrentHashMap<>();
 		broadcast_Hashmap=new ConcurrentHashMap<>();
 		microServiceMsg_HashMap=new ConcurrentHashMap<>();
-		eventFutre_HashMap=new ConcurrentHashMap<>();
+		eventFutre_HashMap=new ConcurrentHashMap<Class<? extends Event>, Future>();
 	}
 
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
@@ -44,13 +41,13 @@ public class MessageBusImpl implements MessageBus {
 				} catch (InterruptedException e) {e.printStackTrace();}
 			} else {
 				synchronized (lock1) {
-					BlockingDeque<MicroService> new_BlockingDeque = new LinkedBlockingDeque<>();
+					BlockingQueue<MicroService> new_BlockingQueue = new LinkedBlockingQueue<>();
 					try {
-						new_BlockingDeque.put(m);
+						new_BlockingQueue.put(m);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					msgEvent_Hashmap.put(type, new_BlockingDeque);
+					msgEvent_Hashmap.put(type, new_BlockingQueue);
 				}
 			}
 		}
@@ -65,13 +62,13 @@ public class MessageBusImpl implements MessageBus {
 			}
 		} else {
 			synchronized (lock2) {
-				BlockingDeque<MicroService> new_BlockingDeque = new LinkedBlockingDeque<>();
+				BlockingQueue<MicroService> new_BlockingQueue = new LinkedBlockingQueue<>();
 				try {
-					new_BlockingDeque.put(m);
+					new_BlockingQueue.put(m);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				broadcast_Hashmap.put(type, new_BlockingDeque);
+				broadcast_Hashmap.put(type, new_BlockingQueue);
 			}
 		}
 	}
@@ -82,16 +79,21 @@ public class MessageBusImpl implements MessageBus {
 
 	public void sendBroadcast(Broadcast b) {
 		if (broadcast_Hashmap.contains(b)) {
-			for (MicroService m : broadcast_Hashmap.get(b)) m.sendBroadcast(b);
-		}
+			for (MicroService m : broadcast_Hashmap.get(b))
+				try {
+					microServiceMsg_HashMap.get(m).put(b);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		} else return;
 	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-	if (msgEvent_Hashmap.contains(e)){
-		MicroService m= msgEvent_Hashmap.get(e).peek();
-		Future f=new Future();
-		eventFutre_HashMap.put(e,f);
+	if (msgEvent_Hashmap.contains(e.getClass())){
+		MicroService m= msgEvent_Hashmap.get(e.getClass()).peek();
+		Future<T> f=new Future<>();
+		eventFutre_HashMap.put(e.getClass(),f);
 		try {
 			microServiceMsg_HashMap.get(m).put(e);
 			notifyAll();
@@ -112,7 +114,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void register(MicroService m) {   // synchronized ???
 		if (!microServiceMsg_HashMap.contains(m)) {
-			BlockingDeque<Message> newBq = new LinkedBlockingDeque<>();
+			BlockingQueue<Message> newBq = new LinkedBlockingQueue<>();
 			microServiceMsg_HashMap.put(m, newBq);
 		}
 	}
@@ -121,14 +123,14 @@ public class MessageBusImpl implements MessageBus {
 	public void unregister(MicroService m) {
 		if (microServiceMsg_HashMap.contains(m)) {
 			microServiceMsg_HashMap.remove(m);
-			for (Map.Entry<Class<?>, BlockingDeque<MicroService>> microEvent : msgEvent_Hashmap.entrySet()) {
+			for (Map.Entry<Class<?>, BlockingQueue<MicroService>> microEvent : msgEvent_Hashmap.entrySet()) {
 				if (microEvent.getValue().contains(m)) microEvent.getValue().remove(m);
 				if (microEvent.getValue().size() == 0) {
 					deleteEvent(microEvent.getKey(),m);
 				}
 			}
 			}
-		for (Map.Entry<Class<?>, BlockingDeque<MicroService>> broad : broadcast_Hashmap.entrySet()) {
+		for (Map.Entry<Class<?>, BlockingQueue<MicroService>> broad : broadcast_Hashmap.entrySet()) {
 			if (broad.getValue().contains(m)) broad.getValue().remove(m);
 			if (broad.getValue().size() == 0){
 				deletebroadcast(broad.getKey(),m);

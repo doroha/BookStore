@@ -15,12 +15,12 @@ public class BookInventoryInfo{
      * @return The title of this book.   
      */
 	private int price;
-	private int amount;
+	private int amountInInventory;
 	private String title;
 
 	public BookInventoryInfo(int price, int amount, String title){
 		this.price = price;
-		this.amount=amount;
+		this.amountInInventory=amount;
 		this.title=title;
 	}
 
@@ -34,7 +34,7 @@ public class BookInventoryInfo{
      * @return amount of available books.      
      */
 	public int getAmountInInventory() {
-		return amount;
+		return amountInInventory;
 	}
 
 	/**
@@ -45,7 +45,8 @@ public class BookInventoryInfo{
 	public int getPrice() {
 		return price;
 	}
+
 	public void setAmount(int amount){
-		this.amount=amount;
+		this.amountInInventory=amount;
 	}
 }

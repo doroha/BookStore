@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class Future<T> {
 
 	boolean isDone=false;
-	T result_F;
+	T result_F=null;
 	public Future() {}
 	
 	/**
@@ -60,9 +60,14 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) throws InterruptedException{  //TODO
-		if (!isDone)
-			unit.timedWait(this,timeout);
+	public T get(long timeout, TimeUnit unit) {  //TODO
+		if (!isDone) {
+			try {
+				unit.timedWait(this, timeout);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		return result_F;
 	}
 }

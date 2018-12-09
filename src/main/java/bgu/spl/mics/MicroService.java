@@ -2,7 +2,7 @@ package bgu.spl.mics;
 
 import sun.plugin.dom.core.CoreConstants;
 
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -27,8 +27,7 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    private ConcurrentHashMap<Class,Callback> eventMsgM;
-    private ConcurrentHashMap<Class,Callback> broadcastM;
+    private ConcurrentHashMap<Class<?>,Callback> messages;
     private MessageBusImpl msgBus;
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -36,9 +35,8 @@ public abstract class MicroService implements Runnable {
      */
     public MicroService(String name) {
         this.name = name;
-        this.eventMsgM=new ConcurrentHashMap<>();
-        this.broadcastM=new ConcurrentHashMap<>();
         this.msgBus=MessageBusImpl.getInstance();
+        this.messages=new ConcurrentHashMap<>();
     }
 
     /**
@@ -63,9 +61,9 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback){
-        if (!eventMsgM.contains(type)){
+        if (!messages.contains(type)){
             msgBus.subscribeEvent(type,this);
-            eventMsgM.put(type.getClass(),callback);
+            messages.put(type.getClass(),callback);
         }
     }
 
@@ -90,9 +88,9 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        if (!broadcastM.contains(type)){
+        if (!messages.contains(type)){
             msgBus.subscribeBroadcast(type,this);
-            broadcastM.put(type.getClass(),callback);
+            messages.put(type.getClass(),callback);
         }
     }
 
@@ -109,7 +107,7 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        if (eventMsgM.contains(e))
+        if (messages.contains(e))
         return msgBus.sendEvent(e);
         return null;
     }
@@ -121,8 +119,9 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-        if (broadcastM.contains(b))
+        if (messages.contains(b))
             msgBus.sendBroadcast(b);
+        else return;
     }
 
     /**
@@ -136,7 +135,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        if (eventMsgM.contains(e)) msgBus.complete(e,result);
+        if (messages.contains(e)) msgBus.complete(e,result);
     }
 
     /**
@@ -166,23 +165,19 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        msgBus.register(this);
         initialize();
         Message m;
         Callback callback;
         while (!terminated) {
             try {
                 m=msgBus.awaitMessage(this);  //Excuting an callback for specific Microservise
-
-                if (eventMsgM.contains(m)){
-                    callback=eventMsgM.get(m.getClass());
-               //     callback.call(m);
-                }
-                else{
-                    callback=broadcastM.get(m);
-                }
+                callback=messages.get(m.getClass());
+                callback.call(m);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+    }
+        msgBus.unregister(this);
     }
 }

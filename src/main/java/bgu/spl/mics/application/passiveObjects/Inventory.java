@@ -1,8 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import bgu.spl.mics.application.Messages.BookOrderEvent;
-import jdk.nashorn.internal.runtime.OptimisticReturnFilters;
-
 import java.io.*;
 import java.util.*;
 import java.io.FileOutputStream;
@@ -22,20 +19,15 @@ public class Inventory{
 
   private Vector<BookInventoryInfo> booksColec;
   private static Inventory instance=null;
-  private BookInventoryInfo[] books;
 
 	public static Inventory getInstance() {
-        if(instance==null){
             return SingletonH.inventoryNew;
-        }
-        return instance;
 	}
 	private static class SingletonH{
 	    private static Inventory inventoryNew= new Inventory();
     }
 	private Inventory(){
-	    books=new BookInventoryInfo[]{};
-		booksColec=new Vector<>();
+
     }
 	/**
      * Initializes the store inventory. This method adds all the items given to the store
@@ -46,7 +38,7 @@ public class Inventory{
      */
 
 	public void load (BookInventoryInfo[] inventory ) {
-	    Collections.addAll(booksColec, inventory);
+		Collections.addAll(booksColec, inventory);
 	}
 	
 	/**
@@ -58,16 +50,14 @@ public class Inventory{
      * 			second should reduce by one the number of books of the desired type.
      */
 	public OrderResult take (String book) {
-		for (int i = 0; i <booksColec.size(); i++) {
-			if (booksColec.get(i).getBookTitle() == book && booksColec.get(i).getAmountInInventory() > 0) {
-				booksColec.get(i).setAmount(booksColec.get(i).getAmountInInventory() - 1);
+		for (BookInventoryInfo b:booksColec) {
+			if (b.getBookTitle().equals(book) && b.getAmountInInventory() > 0) {
+				b.setAmount(b.getAmountInInventory() - 1);
 				return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
 			}
 		}
 		return OrderResult.valueOf("NOT_IN STOCK");
 	}
-
-	
 	/**
      * Checks if a certain book is available in the inventory.
      * <p>
@@ -76,18 +66,17 @@ public class Inventory{
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
 		for (BookInventoryInfo b : booksColec) {
-			if (b.getBookTitle() == book) return b.getPrice();
+			if (b.getBookTitle().equals(book)) return b.getPrice();
 		}
 		return -1;
 	}
 
 	public boolean isAvailable(String book) {
 		for (BookInventoryInfo b:booksColec){
-		if (b.getBookTitle()==book) return true;
+		if (b.getBookTitle().equals(book)) return true;
 	}
 	return false;
 	}
-	
 	/**
      * 
      * <p>
@@ -98,7 +87,7 @@ public class Inventory{
      */
 	public void printInventoryToFile (String filename){
 		HashMap<String, Integer> hashBook=new HashMap<>();
-		for(BookInventoryInfo b: books){
+		for(BookInventoryInfo b: booksColec){
 			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
 		}
 		try {
@@ -113,7 +102,13 @@ public class Inventory{
 			outputF.close();
 		}catch (Exception e){}
 		}
+
+		public int amountBooks(){return booksColec.size();}
+
+		public BookInventoryInfo getBook(String book){
+			for (BookInventoryInfo b:booksColec){
+				if (b.getBookTitle().equals(book)) return b;
+			}
+			return null;
+		}
 	}
-
-
-

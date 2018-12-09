@@ -17,7 +17,7 @@ import java.util.WeakHashMap;
 public class MoneyRegister {
 
 	private List<OrderReceipt> receipts;
-	private static MoneyRegister instance=null;
+	private static MoneyRegister instance;
 	private int total_Earnings;
 
 	private static class SingletonH{
@@ -25,10 +25,7 @@ public class MoneyRegister {
 	}
 
 	public static MoneyRegister getInstance() {
-		if(instance==null){
-			return SingletonH.moneyNew;
-		}
-		return instance;
+return SingletonH.moneyNew;
 	}
 
 	private MoneyRegister(){
@@ -42,9 +39,7 @@ public class MoneyRegister {
      * @param r		The receipt to save in the money register.
      */
 	public void file (OrderReceipt r) {
-
-     //jason make file
-
+		receipts.add(r);
 	}
 	/**
      * Retrieves the current total earnings of the store.  
