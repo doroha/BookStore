@@ -45,17 +45,27 @@ public class APIService extends MicroService{
 
 		Callback<TickBroadcast> sendBookOrderEvent= (TickBroadcast tick) -> {
 			if (orders.containsKey(tick.getTick())) {
-				countOrders--;
-					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(new BookOrderEvent<OrderReceipt>(customer,orders.get(tick.getTick())));
+				int countTicks=orders.get(tick.getTick()).length();
+				for (int i=0; i<countTicks;i++) {
+					countOrders--;
+					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()));
+					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
+					try {    //TODO - iwm not sure kapara
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					OrderReceipt receipt;
 					if (future != null) {
-							receipt = future.get();
-							if (receipt != null) {
+						receipt = future.get();
+						if (receipt != null) {
+							customer.addRecipt(receipt);
 							System.out.println("The Order is done"); // for us to dubug later
 						} else {
 							System.out.println("The Order Fail");
 						}
 					}
+				}
 					if (countOrders==0) terminate();
 			}
 			};

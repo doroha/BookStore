@@ -2,7 +2,6 @@ package bgu.spl.mics.application.passiveObjects;
 
 import java.io.*;
 import java.util.*;
-import java.io.FileOutputStream;
 
 
 /**
@@ -88,7 +87,7 @@ public class Inventory{
 	public void printInventoryToFile (String filename){
 		HashMap<String, Integer> hashBook=new HashMap<>();
 		for(BookInventoryInfo b: booksColec){
-			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
+			hashBook.putIfAbsent(b.getBookTitle(),b.getAmountInInventory());
 		}
 		try {
 			File file = new File("outExample.txt");

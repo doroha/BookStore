@@ -27,7 +27,8 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    private ConcurrentHashMap<Class<?>,Callback> messages;
+    private ConcurrentHashMap<Class<?>,Callback> messages; //the type of the messages amd -> the callback that sutiable for this type of message.
+    private ConcurrentHashMap<MicroService,BlockingQueue<Message>> microServices;
     private MessageBusImpl msgBus;
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -37,6 +38,7 @@ public abstract class MicroService implements Runnable {
         this.name = name;
         this.msgBus=MessageBusImpl.getInstance();
         this.messages=new ConcurrentHashMap<>();
+        this.microServices=new ConcurrentHashMap<>();
     }
 
     /**
@@ -61,10 +63,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback){
-        if (!messages.contains(type)){
             msgBus.subscribeEvent(type,this);
-            messages.put(type.getClass(),callback);
-        }
+            messages.putIfAbsent(type.getClass(),callback);
     }
 
     /**
@@ -88,10 +88,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        if (!messages.contains(type)){
             msgBus.subscribeBroadcast(type,this);
-            messages.put(type.getClass(),callback);
-        }
+            messages.putIfAbsent(type.getClass(),callback);
     }
 
     /**
@@ -107,9 +105,8 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        if (messages.contains(e))
+        if (!messages.contains(e)) return null;
         return msgBus.sendEvent(e);
-        return null;
     }
 
     /**
@@ -119,9 +116,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-        if (messages.contains(b))
             msgBus.sendBroadcast(b);
-        else return;
     }
 
     /**
@@ -169,7 +164,7 @@ public abstract class MicroService implements Runnable {
         initialize();
         Message m;
         Callback callback;
-        while (!terminated) {
+        while (!terminated) {  //message loop
             try {
                 m=msgBus.awaitMessage(this);  //Excuting an callback for specific Microservise
                 callback=messages.get(m.getClass());

@@ -86,10 +86,8 @@ public class Customer {
 	public void chargeCreditCard(int am){
 		this.amount=this.amount - am;
 	}
-//
-//	public void purchaseRequest (BookInventoryInfo book,Integer tick){
-//		Pair<BookInventoryInfo,Integer> newPair=new Pair<>(book,tick);
-//		orders.add(newPair);
-//	}
-//	public List<Pair> getOrders(){return this.orders;}
+
+	public void addRecipt(OrderReceipt receipt){
+		receipts.add(receipt);
+	}
 }

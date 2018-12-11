@@ -10,6 +10,4 @@ public class TickBroadcast implements Broadcast {
         this.tick=t;
     }
     public Integer getTick(){return this.tick;}
-
-
 }

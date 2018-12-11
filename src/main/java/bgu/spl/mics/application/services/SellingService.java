@@ -35,6 +35,11 @@ public class SellingService extends MicroService{
 
 		Callback<BookOrderEvent> bookSell= (BookOrderEvent b) -> {
 			Future<BookInventoryInfo> available = (Future<BookInventoryInfo>) sendEvent(new CheckAvailabilityEvent<BookInventoryInfo>(b.getBook()));
+			try {  //TODO
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			BookInventoryInfo book=available.get();
 			if (book != null) {
 				moneyRegister.chargeCreditCard(b.getCustomer(), book.getPrice());
@@ -44,7 +49,5 @@ public class SellingService extends MicroService{
 			else complete(b,null);
 		};
 		subscribeEvent(BookOrderEvent.class,bookSell);
-
 	}
-
 }

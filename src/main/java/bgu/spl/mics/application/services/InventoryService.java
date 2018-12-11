@@ -24,13 +24,11 @@ public class InventoryService extends MicroService{
 
 	private Inventory inventory;
 	private OrderResult positive;
-	private OrderResult negative;
 
 	public InventoryService() {
 		super("InventoryService");
 		this.inventory=Inventory.getInstance();
 		this.positive=OrderResult.valueOf("SUCCESSFULLY_TAKEN");
-		this.negative=OrderResult.valueOf("NOT_IN STOCK");
 	}
 
 	@Override
@@ -46,6 +44,5 @@ public class InventoryService extends MicroService{
 			}
 		};
 		subscribeEvent(CheckAvailabilityEvent.class,check);
-
 	}
 }

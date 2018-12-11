@@ -63,7 +63,7 @@ return SingletonH.moneyNew;
 	/**
      * Prints to a file named @filename a serialized object List<OrderReceipt> which holds all the order receipts 
      * currently in the MoneyRegister
-     * This method is called by the main method in order to generate the output.. 
+     * This method is called by the main method in order to generate the output..
      */
 	public void printOrderReceipts(String filename) {
 		//Jason

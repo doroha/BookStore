@@ -30,12 +30,12 @@ public class MessageBusImpl implements MessageBus {
 		msgEvent_Hashmap=new ConcurrentHashMap<>();
 		broadcast_Hashmap=new ConcurrentHashMap<>();
 		microServiceMsg_HashMap=new ConcurrentHashMap<>();
-		eventFutre_HashMap=new ConcurrentHashMap<Class<? extends Event>, Future>();
+		eventFutre_HashMap=new ConcurrentHashMap<>();
 	}
 
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		if (microServiceMsg_HashMap.contains(m)) {
-			if (msgEvent_Hashmap.contains(type) && !msgEvent_Hashmap.get(type).contains(m)) {
+			if (msgEvent_Hashmap.contains(type.getClass()) && !msgEvent_Hashmap.get(type).contains(m)) {
 				try {
 					msgEvent_Hashmap.get(type).put(m);
 				} catch (InterruptedException e) {e.printStackTrace();}
@@ -47,7 +47,7 @@ public class MessageBusImpl implements MessageBus {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					msgEvent_Hashmap.put(type, new_BlockingQueue);
+					msgEvent_Hashmap.putIfAbsent(type, new_BlockingQueue);
 				}
 			}
 		}
@@ -68,7 +68,7 @@ public class MessageBusImpl implements MessageBus {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				broadcast_Hashmap.put(type, new_BlockingQueue);
+				broadcast_Hashmap.putIfAbsent(type, new_BlockingQueue);
 			}
 		}
 	}
@@ -78,22 +78,23 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	public void sendBroadcast(Broadcast b) {
-		if (broadcast_Hashmap.contains(b)) {
+            broadcast_Hashmap.putIfAbsent(b.getClass(),new LinkedBlockingQueue<>());
+            if (broadcast_Hashmap.get(b).isEmpty()) return;
 			for (MicroService m : broadcast_Hashmap.get(b))
 				try {
 					microServiceMsg_HashMap.get(m).put(b);
+					notifyAll();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-		} else return;
 	}
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-	if (msgEvent_Hashmap.contains(e.getClass())){
+		msgEvent_Hashmap.putIfAbsent(e.getClass(),new LinkedBlockingQueue<>());
 		MicroService m= msgEvent_Hashmap.get(e.getClass()).peek();
 		Future<T> f=new Future<>();
-		eventFutre_HashMap.put(e.getClass(),f);
+		eventFutre_HashMap.putIfAbsent(e.getClass(),f);
 		try {
 			microServiceMsg_HashMap.get(m).put(e);
 			notifyAll();
@@ -108,16 +109,14 @@ public class MessageBusImpl implements MessageBus {
 		}
 		return eventFutre_HashMap.get(e);
 	}
-		return null;
-	}
 
 	@Override
 	public void register(MicroService m) {   // synchronized ???
-		if (!microServiceMsg_HashMap.contains(m)) {
-			BlockingQueue<Message> newBq = new LinkedBlockingQueue<>();
-			microServiceMsg_HashMap.put(m, newBq);
-		}
-	}
+			if (!microServiceMsg_HashMap.contains(m)) {
+				BlockingQueue<Message> newBq = new LinkedBlockingQueue<>();
+				microServiceMsg_HashMap.putIfAbsent(m, newBq);
+			}
+			}
 
 	@Override
 	public void unregister(MicroService m) {
@@ -153,10 +152,9 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public synchronized Message awaitMessage(MicroService m) throws InterruptedException {  //Synchronized ???
 		Message message;
-		if (microServiceMsg_HashMap.contains(m)) {
+		if (microServiceMsg_HashMap.get(m)==null) throw new IllegalStateException();
 			while (microServiceMsg_HashMap.get(m).size() == 0) wait();
 			message = microServiceMsg_HashMap.get(m).poll();
-		} else throw new IllegalStateException();
 		return message;
 	}
 }
