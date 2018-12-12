@@ -41,6 +41,7 @@ public class ResourcesHolder {
 	public Future<DeliveryVehicle> acquireVehicle() {  //TODO
 		for (DeliveryVehicle vehicle:vehiclesColec) {
 
+
 		}
 		return null;
 	}

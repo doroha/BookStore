@@ -54,10 +54,8 @@ return SingletonH.moneyNew;
      * @param amount 	amount to charge
      */
 	public void chargeCreditCard(Customer c, int amount) {
-		if (c.getAvailableCreditAmount()>=amount){
 			c.chargeCreditCard(amount);
 			total_Earnings+=amount;
-		}
 	}
 	
 	/**
@@ -66,6 +64,6 @@ return SingletonH.moneyNew;
      * This method is called by the main method in order to generate the output..
      */
 	public void printOrderReceipts(String filename) {
-		//Jason
+
 	}
 }

@@ -6,6 +6,7 @@ import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Messages.BookOrderEvent;
 import bgu.spl.mics.application.Messages.TickBroadcast;
+import bgu.spl.mics.application.Messages.TickFinalBroadcast;
 import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
 import bgu.spl.mics.application.passiveObjects.Customer;
 import bgu.spl.mics.application.passiveObjects.OrderReceipt;
@@ -32,7 +33,7 @@ public class APIService extends MicroService{
 	private HashMap<Integer,String> orders;
 	private int countOrders;
 
-	public APIService(Customer customer,HashMap orderSchedule) {
+	public APIService(Customer customer,HashMap<Integer,String>orderSchedule) {
 		super("APIService");
 		this.customer=customer;
 		this.orders=orderSchedule;
@@ -41,35 +42,23 @@ public class APIService extends MicroService{
 	@Override
 	protected void initialize() {
 
-		if (orders.size()==0) terminate();
-
-		Callback<TickBroadcast> sendBookOrderEvent= (TickBroadcast tick) -> {
+		subscribeBroadcast(TickBroadcast.class,(TickBroadcast tick) -> {
 			if (orders.containsKey(tick.getTick())) {
-				int countTicks=orders.get(tick.getTick()).length();
-				for (int i=0; i<countTicks;i++) {
 					countOrders--;
-					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()));
+					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()),tick.getTick().intValue());
 					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
-					try {    //TODO - iwm not sure kapara
-						wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 					OrderReceipt receipt;
 					if (future != null) {
 						receipt = future.get();
-						if (receipt != null) {
-							customer.addRecipt(receipt);
-							System.out.println("The Order is done"); // for us to dubug later
-						} else {
-							System.out.println("The Order Fail");
-						}
-					}
-				}
-					if (countOrders==0) terminate();
+						System.out.println("The Order is done"); // for us to dubug later
+					}  else  System.out.println("The Order Fail");
+				if (countOrders==0) terminate();
 			}
-			};
-		subscribeBroadcast(TickBroadcast.class,sendBookOrderEvent);
+		});
+
+		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick) ->{
+			terminate();
+		});
 	}
 }
 

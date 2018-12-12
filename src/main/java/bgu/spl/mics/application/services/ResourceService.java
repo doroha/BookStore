@@ -15,13 +15,13 @@ public class ResourceService extends MicroService{
 
 	public ResourceService() {
 		super("Change_This_Name");
-		// TODO Implement this
+
 	}
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+
+
 	}
 
 }

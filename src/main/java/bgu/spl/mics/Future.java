@@ -12,8 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Future<T> {
 
-	boolean isDone=false;
-	T result_F=null;
+	private T result_F;
 	public Future() {}
 	
 	/**
@@ -24,29 +23,30 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {
-		while (!isDone)
+	public synchronized T get() {
+		while (!isDone())
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			notifyAll();
 		return result_F;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
-	public void resolve (T result) {
-		result_F=result;
-		isDone=true;
+	public synchronized void resolve (T result) {
+		this.result_F=result;
+		notifyAll();
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		return isDone;
+		return this.result_F!=null;
 	}
 	
 	/**
@@ -61,13 +61,14 @@ public class Future<T> {
      *         elapsed, return null.
      */
 	public T get(long timeout, TimeUnit unit) {  //TODO
-		if (!isDone) {
-			try {
-				unit.timedWait(this, timeout);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		timeout=unit.toMillis(timeout);
+		for (int i=0;i<timeout;i++){
+			if (!isDone()){
+				try {
+					Thread.sleep(1);
+				} catch (Exception e){}
+			} else return result_F;
 		}
-		return result_F;
+		return null;
 	}
 }

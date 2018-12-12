@@ -83,11 +83,11 @@ public class Customer {
 		return creditNum;
 	}
 
-	public void chargeCreditCard(int am){
-		this.amount=this.amount - am;
+	public void chargeCreditCard(int price){
+		this.amount=this.amount - price;
 	}
 
-	public void addRecipt(OrderReceipt receipt){
-		receipts.add(receipt);
-	}
+	public boolean possibleCharge(int price){return getAvailableCreditAmount()>=price;}
+
+	public void file(OrderReceipt receipt){this.receipts.add(receipt);}
 }

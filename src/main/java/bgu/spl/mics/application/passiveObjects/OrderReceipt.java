@@ -19,7 +19,6 @@ public class OrderReceipt {
 
 	public OrderReceipt(int customerId, String bookTitle, int price, int issuedTic,
 						int orderTic, int processTic){
-		this.orderId++;
 		this.seller=seller;
 		this.customerId=customerId;
 		this.bookTitle=bookTitle;

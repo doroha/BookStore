@@ -65,7 +65,9 @@ public class Inventory{
      */
 	public int checkAvailabiltyAndGetPrice(String book) {
 		for (BookInventoryInfo b : booksColec) {
-			if (b.getBookTitle().equals(book)) return b.getPrice();
+			if (b.getBookTitle().equals(book)) {
+				return b.getPrice();
+			}
 		}
 		return -1;
 	}
@@ -87,7 +89,7 @@ public class Inventory{
 	public void printInventoryToFile (String filename){
 		HashMap<String, Integer> hashBook=new HashMap<>();
 		for(BookInventoryInfo b: booksColec){
-			hashBook.putIfAbsent(b.getBookTitle(),b.getAmountInInventory());
+			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
 		}
 		try {
 			File file = new File("outExample.txt");

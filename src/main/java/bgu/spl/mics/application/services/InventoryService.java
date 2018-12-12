@@ -5,6 +5,8 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Messages.BookOrderEvent;
 import bgu.spl.mics.application.Messages.CheckAvailabilityEvent;
+import bgu.spl.mics.application.Messages.TakeEvent;
+import bgu.spl.mics.application.Messages.TickFinalBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.OrderResult;
 
@@ -23,26 +25,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InventoryService extends MicroService{
 
 	private Inventory inventory;
-	private OrderResult positive;
 
 	public InventoryService() {
 		super("InventoryService");
 		this.inventory=Inventory.getInstance();
-		this.positive=OrderResult.valueOf("SUCCESSFULLY_TAKEN");
 	}
 
 	@Override
 	protected void initialize() {
 
-		Callback<CheckAvailabilityEvent> check= (CheckAvailabilityEvent c) -> {
-			if (inventory==null){ System.out.print("Terminate"); terminate(); }
+		subscribeEvent(CheckAvailabilityEvent.class,(CheckAvailabilityEvent c) -> {  //check if the book is avialeble in the inventory and the get the price of this book
+			if (inventory==null){ System.out.print("Terminate"); terminate(); }  //TODO-what to do with inventory==null
+				Integer price=new Integer(inventory.checkAvailabiltyAndGetPrice(c.getBookTitle()));
+				complete(c, price);
+		});
 
-			if (inventory.isAvailable(c.getBook())){
-				if (inventory.take(c.getBook()).equals(positive)){
-					complete(c,inventory.getBook(c.getBook()));
-				} else complete(c,null);   //the result is negativ
-			}
-		};
-		subscribeEvent(CheckAvailabilityEvent.class,check);
+		subscribeEvent(TakeEvent.class,(TakeEvent take)->{   //take the book from the inventory if we can do so
+			OrderResult result=inventory.take(take.getBookTitle());
+			complete(take,result);
+		});
+
+		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{
+			terminate();
+		});
 	}
 }

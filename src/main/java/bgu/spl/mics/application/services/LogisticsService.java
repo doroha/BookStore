@@ -15,13 +15,15 @@ public class LogisticsService extends MicroService {
 
 	public LogisticsService() {
 		super("Change_This_Name");
-		// TODO Implement this
+
+
 	}
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this
-		
+
+
+
 	}
 
 }

@@ -4,10 +4,11 @@ import bgu.spl.mics.Broadcast;
 
 public class TickBroadcast implements Broadcast {
 
-    private Integer tick;
+    private Integer currentTick;
 
     public TickBroadcast(Integer t){
-        this.tick=t;
+        this.currentTick=t;
     }
-    public Integer getTick(){return this.tick;}
+
+    public Integer getTick(){return this.currentTick;}
 }

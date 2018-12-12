@@ -13,17 +13,20 @@ public class BookOrderEvent<OrderReceipt> implements Event<OrderReceipt> {
 
     private Customer customer;
     private String book;
-    private int orderId;  //TODO
+    private int orderTick;
 
-public BookOrderEvent(Customer c,String b){
+public BookOrderEvent(Customer c,String b,int tick){
     this.customer=c;
     this.book=b;
+    this.orderTick=tick;
 }
-    public String getBook() {
+    public String getBookTitle() {
         return book;
     }
 
     public Customer getCustomer() {
         return customer;
     }
+
+    public int getOrderTick(){return this.orderTick;}
 }
