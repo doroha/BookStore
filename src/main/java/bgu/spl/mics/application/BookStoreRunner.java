@@ -18,101 +18,156 @@ public class BookStoreRunner {
 
     private static HashMap<Integer, Customer> customers;
     private static Vector<OrderReceipt> reciepts;
-    private static HashMap<String, Integer> booksHashmap;
     private static MoneyRegister register;
     private static Inventory inventory;
     private static HashMap<Integer,String> ordersCustomer;  //Customer's orders
     private static ResourcesHolder resource;
     private static Vector<MicroService>microServices;
+    //fields i added
+    private static BookInventoryInfo[] initInventory;
+    private static DeliveryVehicle[] initResources;
+
 
     public static void main(String[] args) {
 
-        microServices = new Vector<>();
+        String input = "src\\main\\java\\bgu\\spl\\mics\\application\\sample.json t1 t2 t3";
+        String[] veriable = input.split("\\s+");
+
+            String jsonFile = veriable[0];
+//            String customerMap = veriable[1];
+//            String bookMap = veriable[2];
+//            String orderReceipts = veriable[3];
+            readJsonAndLoad(jsonFile);
+
+    }
+
+    private static void readJsonAndLoad(String jsonFile) {
+        JsonParser parser = new JsonParser();
+        JsonObject jObj = null;
+        try{
+            jObj = (JsonObject) parser.parse(new FileReader(jsonFile));
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+
+        JsonObject rootObject = jObj.getAsJsonObject();
+
         customers =new HashMap<>();
         reciepts=new Vector<>();
-        booksHashmap=new HashMap<>();
         register=MoneyRegister.getInstance();
         inventory=Inventory.getInstance();
         ordersCustomer=new HashMap<>();
         resource=ResourcesHolder.getInstance();
-        microServices=new Vector<>();
+        microServices = new Vector<>();
+        inventory.load(initInventory);
+        resource.load(initResources);
 
-        JsonParser parser = new JsonParser();
-        InputStream inputStream = BookStoreRunner.class.getClassLoader().getResourceAsStream("sample.json");
-        Reader reader = new InputStreamReader(inputStream);
-        parser.parse(reader);
-        JsonElement rootElement = parser.parse(reader);
-        JsonObject rootObject = rootElement.getAsJsonObject();
-//        JsonObject books=rootObject.getAsJsonObject("initialInventory");
-        JsonArray booksArray = null;
-        for (Map.Entry<String, JsonElement> entry : rootObject.entrySet()) {
-            JsonObject entryObject = entry.getValue().getAsJsonObject();
-            booksArray = entryObject.getAsJsonArray("initialInventory");
+        JsonArray booksArray = rootObject.getAsJsonArray("initialInventory");
+
+        initInventory =new BookInventoryInfo[booksArray.size()];
+        String bookTitle;
+        int amount;
+        int price;
+        //get the elemnts of the book from the books array
+        for (int i=0;i<booksArray.size();i++){
+            JsonObject text = booksArray.get(i).getAsJsonObject();
+
+            bookTitle=text.get("bookTitle").getAsJsonPrimitive().getAsString();
+            amount =text.get("amount").getAsJsonPrimitive().getAsInt();
+            price= text.get("price").getAsJsonPrimitive().getAsInt();
+
+            BookInventoryInfo newInventoryInfo= new BookInventoryInfo(price, amount,bookTitle);
+            initInventory[i]= newInventoryInfo;
         }
 
-        JsonArray resourceArray = null;
-        for (Map.Entry<String, JsonElement> entry : rootObject.entrySet()) {
-            JsonObject entryObject = entry.getValue().getAsJsonObject();
-            resourceArray = entryObject.getAsJsonArray("initialResources");
-        }
+        JsonArray resourceArray = rootObject.getAsJsonArray("initialResources");
+        JsonArray vehiclesArray = resourceArray.get(0).getAsJsonObject().getAsJsonArray("vehicles");
 
+        initResources=new DeliveryVehicle[vehiclesArray.size()];
+
+        //get the elements of the resource from the resource array
+        int license;
+        int speed;
+        for (int i=0;i<vehiclesArray.size();i++){
+            JsonObject text = vehiclesArray.get(i).getAsJsonObject();
+
+            license=text.get("license").getAsJsonPrimitive().getAsInt();
+            speed=text.get("speed").getAsJsonPrimitive().getAsInt();
+
+            DeliveryVehicle newVehicle= new DeliveryVehicle(license, speed);
+            initResources[i]=newVehicle;
+        }
         JsonObject services = rootObject.getAsJsonObject("services");
 
+        //microservice time and its fields
+        int speedTime;
+        int duration;
         JsonObject time = services.getAsJsonObject("time");
-      //  TimeService timeService = new TimeService(time.get("speed").getAsInt(), time.get("duration").getAsInt());
+        speedTime=time.get("speed").getAsJsonPrimitive().getAsInt();
+        duration=time.get("duration").getAsJsonPrimitive().getAsInt();
 
-        int countSellings = services.get("selling").getAsInt();   //TODO - how to get the int of the element
+        TimeService newTimeService= TimeService.getTimeService(speedTime,duration);
+
+        //microservice Selling Service and its initial
+        int countSellings = services.get("selling").getAsInt();
 
         for (int i = 0; i < countSellings; i++) microServices.addElement(new SellingService());
 
-
+        //microservice Inventory Service and its initial
         int countInventory = services.get("inventoryService").getAsInt();
 
         for (int i = 0; i < countInventory; i++) microServices.addElement(new InventoryService());
 
-
+        //microservice Logistic Service and its initial
         int countLogistics = services.get("logistics").getAsInt();
 
         for (int i = 0; i < countLogistics; i++) microServices.addElement(new LogisticsService());
 
+        //microservice resource Service and its initial
         int countResorces = services.get("resourcesService").getAsInt();
 
         for (int i = 0; i < countResorces; i++) microServices.addElement(new ResourceService());
 
-        JsonArray customerArray = null;
-        for (Map.Entry<String, JsonElement> entry : rootObject.getAsJsonObject("services").entrySet()) {
-            JsonObject entryObject = entry.getValue().getAsJsonObject();
-            customerArray = entryObject.getAsJsonObject("services").getAsJsonArray("customers");
-        }
+
+
+        JsonArray customerArray = services.getAsJsonObject().getAsJsonArray("customers");
+        JsonObject customer;
+        JsonArray ordersArray;
+        JsonObject orde;
+
+        //getting the fields of the customer from the customer array
+        int id;
+        String name;
+        String address;
+        int distance;
+        int numberCredit;
+
+        int amountCredit;
+        String bookTitleOrder;
+        int tick;
 
         for (int i = 0; i < customerArray.size(); i++) {
-            //
-        }
 
-        //hashmap -> id  - customer
-        HashMap<Integer, Customer> customers = new HashMap<>();
+            JsonObject text = customerArray.get(i).getAsJsonObject();
+            id=text.get("id").getAsJsonPrimitive().getAsInt();
+            name= text.get("name").getAsJsonPrimitive().getAsString();
+            address=text.get("address").getAsJsonPrimitive().getAsString();
+            distance=text.get("distance").getAsJsonPrimitive().getAsInt();
+            //object credit card
+            numberCredit=text.get("creditCard").getAsJsonObject().getAsJsonPrimitive("number").getAsInt();
+            amountCredit=text.get("creditCard").getAsJsonObject().getAsJsonPrimitive("amount").getAsInt();
 
-        // List ->  recipts
-        List<OrderReceipt> reciepts = new LinkedList<>();
+            Customer newCustomer= new Customer(name, id, address, distance,numberCredit,amountCredit);
+            customers.put(newCustomer.getId(), newCustomer);
 
-        // HashMap -> namebook - how many books in the inventory
-        HashMap<String, Integer> booksHashmap = new HashMap<>();
-
-        //one instnce of the moneyRegister
-        MoneyRegister register = MoneyRegister.getInstance();
-
-        Inventory inventory = Inventory.getInstance();
-
-        ResourcesHolder resource = ResourcesHolder.getInstance();
-
-        int countApi = customerArray.size();
-    //    for (int i = 0; i < countApi; i++) microServices.addElement(new APIService());
-
-        try {
-            Object obj = parser.parse(new FileReader(("/Users/Lynn N/Desktop/BookStore-master/BookStore-master/src/main/java/bgu/spl/mics/application/Config.txt")));
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            //array order schedule
+            ordersArray= text.getAsJsonArray("orderSchedule");
+            for(int j=0; j< ordersArray.size() ; j++){
+                orde = ordersArray.get(j).getAsJsonObject();
+                bookTitleOrder= orde.get("bookTitle").getAsJsonPrimitive().getAsString();
+                tick= orde.get("tick").getAsJsonPrimitive().getAsInt();
+                ordersCustomer.put(tick,bookTitleOrder);
+            }
         }
     }
 }

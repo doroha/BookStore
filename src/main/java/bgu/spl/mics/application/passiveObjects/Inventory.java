@@ -37,7 +37,11 @@ public class Inventory{
      */
 
 	public void load (BookInventoryInfo[] inventory ) {
-		Collections.addAll(booksColec, inventory);
+		if (instance!=null) {
+			for (int i = 0; i < inventory.length; i++) {
+				booksColec.addElement(inventory[i]);
+			}
+		}
 	}
 	
 	/**
@@ -72,12 +76,6 @@ public class Inventory{
 		return -1;
 	}
 
-	public boolean isAvailable(String book) {
-		for (BookInventoryInfo b:booksColec){
-		if (b.getBookTitle().equals(book)) return true;
-	}
-	return false;
-	}
 	/**
      * 
      * <p>
@@ -106,10 +104,4 @@ public class Inventory{
 
 		public int amountBooks(){return booksColec.size();}
 
-		public BookInventoryInfo getBook(String book){
-			for (BookInventoryInfo b:booksColec){
-				if (b.getBookTitle().equals(book)) return b;
-			}
-			return null;
-		}
 	}
