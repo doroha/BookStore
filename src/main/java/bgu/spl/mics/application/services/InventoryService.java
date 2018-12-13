@@ -26,8 +26,8 @@ public class InventoryService extends MicroService{
 
 	private Inventory inventory;
 
-	public InventoryService() {
-		super("InventoryService");
+	public InventoryService(int number) {
+		super("InventoryService" + number);
 		this.inventory=Inventory.getInstance();
 	}
 

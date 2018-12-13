@@ -1,16 +1,17 @@
 package bgu.spl.mics.application.Messages;
 
-public class GetVehicleEvent {
+import bgu.spl.mics.Event;
+import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 
-    private int license;
-    private int speed;
-    public GetVehicleEvent(int license, int speed){
-        this.license=license;
-        this.speed= speed;
+public class GetVehicleEvent implements Event<DeliveryEvent> {
 
+private DeliveryEvent deliveryEvent;
+
+    public GetVehicleEvent(DeliveryEvent d){
+        this.deliveryEvent=d;
     }
-    public  int getLicense(){
-        return license;
+
+    public DeliveryEvent getDeliveryEvent() {
+        return this.deliveryEvent;
     }
-    public int getSpeed(){return speed;}
 }

@@ -1,14 +1,23 @@
 package bgu.spl.mics.application.Messages;
 
 
-import bgu.spl.mics.application.passiveObjects.OrderReceipt;
+import bgu.spl.mics.Event;
 
-public class DeliveryEvent {
+public class DeliveryEvent<DeliveryVehicle> implements Event<DeliveryVehicle> {
+
+private String adress;
+private String book;
 
 
-
-    public DeliveryEvent(OrderReceipt receipt){
-
+    public DeliveryEvent(String bookTitle, String address) {
+        this.adress=bookTitle;
+        this.book=address;
     }
 
+    public String getBook() {
+        return this.book;
+    }
+    public String getAdress() {
+        return this.adress;
+    }
 }

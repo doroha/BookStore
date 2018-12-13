@@ -19,17 +19,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class ResourceService extends MicroService{
-	private ConcurrentLinkedQueue<Future> future_queue;
 
 	public ResourceService(int number) {
 		super("Resource Service "+ number);
-		future_queue= new ConcurrentLinkedQueue<>();
 
 	}
 
 	@Override
 	protected void initialize() {
-		// TODO Implement this he signs to the termination broadcast he has a queue of future events if he needs to resolve them all to null
+
 		subscribeEvent(GetVehicleEvent.class, (GetVehicleEvent v) -> {
 			Future<DeliveryVehicle> vehicle =(Future<DeliveryVehicle>) sendEvent(new GetVehicleEvent());
 			DeliveryVehicle veh;
@@ -37,9 +35,8 @@ public class ResourceService extends MicroService{
 				veh = vehicle.get();
 				if(veh!=null){
 					GetVehicleEvent getVeh=new GetVehicleEvent(v.getLicense(),v.getSpeed());
-					sendEvent(getVeh);
+					sendEvent(v.getVeh);
 				}
-
 			}
 		}
 	}

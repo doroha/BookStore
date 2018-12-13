@@ -111,22 +111,22 @@ public class BookStoreRunner {
         //microservice Selling Service and its initial
         int countSellings = services.get("selling").getAsInt();
 
-        for (int i = 0; i < countSellings; i++) microServices.addElement(new SellingService());
+        for (int i = 0; i < countSellings; i++) microServices.addElement(new SellingService(i));
 
         //microservice Inventory Service and its initial
         int countInventory = services.get("inventoryService").getAsInt();
 
-        for (int i = 0; i < countInventory; i++) microServices.addElement(new InventoryService());
+        for (int i = 0; i < countInventory; i++) microServices.addElement(new InventoryService(i));
 
         //microservice Logistic Service and its initial
         int countLogistics = services.get("logistics").getAsInt();
 
-        for (int i = 0; i < countLogistics; i++) microServices.addElement(new LogisticsService());
+        for (int i = 0; i < countLogistics; i++) microServices.addElement(new LogisticsService(i));
 
         //microservice resource Service and its initial
         int countResorces = services.get("resourcesService").getAsInt();
 
-        for (int i = 0; i < countResorces; i++) microServices.addElement(new ResourceService());
+        for (int i = 0; i < countResorces; i++) microServices.addElement(new ResourceService(i));
 
 
 

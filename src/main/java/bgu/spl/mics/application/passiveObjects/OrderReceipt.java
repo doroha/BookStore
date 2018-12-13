@@ -17,9 +17,9 @@ public class OrderReceipt {
 	private int	orderTic;
 	private int processTic;
 
-	public OrderReceipt(int customerId, String bookTitle, int price, int issuedTic,
+	public OrderReceipt(String s, int customerId, String bookTitle, int price, int issuedTic,
 						int orderTic, int processTic){
-		this.seller=seller;
+		this.seller=s;
 		this.customerId=customerId;
 		this.bookTitle=bookTitle;
 		this.price=price;

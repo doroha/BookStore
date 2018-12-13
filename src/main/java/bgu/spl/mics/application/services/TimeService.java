@@ -1,9 +1,12 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.Messages.TickBroadcast;
+import bgu.spl.mics.application.Messages.TickFinalBroadcast;
 
-import java.sql.Time;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * TimeService is the global system timer There is only one instance of this micro-service.
@@ -18,17 +21,16 @@ import java.util.concurrent.TimeUnit;
 public class TimeService extends MicroService{
 
 
-	private int countTick;
+	private int currentTick;
 	private int speedTime;
 	private int durationTime;
 	private static TimeService instance=null;
-	private int counter=0;
 
 	private TimeService(int speed,int duration) {
 		super("Time Service");
 		this.speedTime=speed;
 		this.durationTime=duration;
-
+		this.currentTick=1;
 	}
 
 	public static TimeService getTimeService(int speed,int duration){
@@ -40,10 +42,13 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
-
-
-
-
-
+		TimeUnit unit=TimeUnit.MILLISECONDS;
+	//	timer.scheduleAtFixedRate(timerTask,speedTime,durationTime);  //time clockOn
+		while (currentTick<=durationTime){   //send the current tick to everyone that intrested in this broadcust
+				sendBroadcast(new TickBroadcast(currentTick));
+			try{	wait(unit.toMillis(speedTime));} catch (InterruptedException e){}
+			currentTick++;
+		}
+		sendBroadcast(new TickFinalBroadcast(currentTick));  //send the final Tick
 	}
 }

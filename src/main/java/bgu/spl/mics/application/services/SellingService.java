@@ -4,10 +4,8 @@ import bgu.spl.mics.Callback;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Messages.*;
-import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
-import bgu.spl.mics.application.passiveObjects.MoneyRegister;
-import bgu.spl.mics.application.passiveObjects.OrderReceipt;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
+import bgu.spl.mics.application.passiveObjects.*;
+
 import java.util.*;
 /**
  * Selling service in charge of taking orders from customers.
@@ -23,8 +21,8 @@ public class SellingService extends MicroService {
 
 	private MoneyRegister moneyRegister;
 
-	public SellingService() {
-		super("SellingService");
+	public SellingService(int number) {
+		super("SellingService" + number);
 		this.moneyRegister = MoneyRegister.getInstance();
 	}
 
@@ -46,11 +44,11 @@ public class SellingService extends MicroService {
 										if (orderResult.get().equals(OrderResult.SUCCESSFULLY_TAKEN)) {
 											if (b.getCustomer().possibleCharge(price.intValue())) { //check if mo one else charge meenwile this customer
 												moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
-												OrderReceipt receipt = new OrderReceipt(b.getCustomer().getId(), b.getBookTitle(), price.intValue(),  b.getOrderTick(), b.getOrderTick(),  b.getOrderTick());
+												OrderReceipt receipt = new OrderReceipt(getName(),b.getCustomer().getId(), b.getBookTitle(), price.intValue(),  b.getOrderTick(), b.getOrderTick(),  b.getOrderTick());
 												b.getCustomer().file(receipt);
 												moneyRegister.file(receipt);
 												complete(b, receipt);
-												// TODO: sendEvent(new DeliveryEvent(receipt));  send an event to deliviry .
+												sendEvent(new DeliveryEvent<DeliveryVehicle>(b.getBookTitle(),b.getCustomer().getAddress()));
 											} else {
 												complete(b, null);
 											}
