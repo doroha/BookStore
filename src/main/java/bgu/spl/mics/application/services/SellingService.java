@@ -45,18 +45,16 @@ public class SellingService extends MicroService {
 											if (b.getCustomer().possibleCharge(price.intValue())) { //check if mo one else charge meenwile this customer
 												moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
 												OrderReceipt receipt = new OrderReceipt(getName(),b.getCustomer().getId(), b.getBookTitle(), price.intValue(),  b.getOrderTick(), b.getOrderTick(),  b.getOrderTick());
-												b.getCustomer().file(receipt);
 												moneyRegister.file(receipt);
 												complete(b, receipt);
-												sendEvent(new DeliveryEvent<DeliveryVehicle>(b.getBookTitle(),b.getCustomer().getAddress()));
 											} else {
-												complete(b, null);
+												complete(b, null);  // it is not possible to charge the customer
 											}
 										} else {
-											complete(b, null);
-										} // the order is NOT_IN_STOCK
+											complete(b, null); // the order is NOT_IN_STOCK
+										}
 									}
-								} else {
+								} else { // it is not possible to charge the customer
 									complete(b, null);
 								}
 							}

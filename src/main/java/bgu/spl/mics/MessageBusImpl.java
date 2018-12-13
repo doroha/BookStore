@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.Messages.TickFinalBroadcast;
+
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -58,6 +60,9 @@ public class MessageBusImpl implements MessageBus {
 	public void sendBroadcast(Broadcast b) {
 		broadcast_Hashmap.putIfAbsent(b.getClass(), new LinkedBlockingQueue<>());
 		if (broadcast_Hashmap.get(b.getClass()).isEmpty()) return;
+		if (b.getClass().getClass().equals(TickFinalBroadcast.class)){
+			//TODO- termination of the services one by one
+		}
 		for (MicroService m : broadcast_Hashmap.get(b.getClass())) {
 			try {
 				microServiceMsg_HashMap.get(m).put(b);

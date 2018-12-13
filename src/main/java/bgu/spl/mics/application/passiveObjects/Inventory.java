@@ -17,7 +17,6 @@ import java.util.*;
 public class Inventory{
 
   private Vector<BookInventoryInfo> booksColec;
-  private static Inventory instance=null;
 
 	public static Inventory getInstance() {
             return SingletonH.inventoryNew;
@@ -37,11 +36,9 @@ public class Inventory{
      */
 
 	public void load (BookInventoryInfo[] inventory ) {
-		if (instance!=null) {
-			for (int i = 0; i < inventory.length; i++) {
-				booksColec.addElement(inventory[i]);
+			for (BookInventoryInfo b:inventory){
+				booksColec.add(b);
 			}
-		}
 	}
 	
 	/**
@@ -55,7 +52,9 @@ public class Inventory{
 	public OrderResult take (String book) {
 		for (BookInventoryInfo b:booksColec) {
 			if (b.getBookTitle().equals(book) && b.getAmountInInventory() > 0) {
-				b.setAmount(b.getAmountInInventory() - 1);
+				synchronized (b) {                  // TODO - lock the book ?
+					b.setAmount(b.getAmountInInventory() - 1);
+				}
 				return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
 			}
 		}

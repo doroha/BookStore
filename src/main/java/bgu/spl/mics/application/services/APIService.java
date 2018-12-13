@@ -5,12 +5,10 @@ import bgu.spl.mics.Future;
 import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Messages.BookOrderEvent;
+import bgu.spl.mics.application.Messages.DeliveryEvent;
 import bgu.spl.mics.application.Messages.TickBroadcast;
 import bgu.spl.mics.application.Messages.TickFinalBroadcast;
-import bgu.spl.mics.application.passiveObjects.BookInventoryInfo;
-import bgu.spl.mics.application.passiveObjects.Customer;
-import bgu.spl.mics.application.passiveObjects.OrderReceipt;
-import bgu.spl.mics.application.passiveObjects.OrderResult;
+import bgu.spl.mics.application.passiveObjects.*;
 import com.sun.org.apache.xpath.internal.operations.Or;
 import javafx.util.Pair;
 
@@ -31,28 +29,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public class APIService extends MicroService{
 	private Customer customer;
 	private HashMap<Integer,String> orders;
-	private int countOrders;
 
 	public APIService(Customer customer,HashMap<Integer,String>orderSchedule) {
 		super("APIService");
 		this.customer=customer;
 		this.orders=orderSchedule;
-		this.countOrders=orderSchedule.size();
 	}
 	@Override
 	protected void initialize() {
 
 		subscribeBroadcast(TickBroadcast.class,(TickBroadcast tick) -> {
 			if (orders.containsKey(tick.getTick())) {
-					countOrders--;
 					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()),tick.getTick().intValue());
 					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
 					OrderReceipt receipt;
 					if (future != null) {
 						receipt = future.get();
+						customer.file(receipt);
+						sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(),customer.getAddress()));
 						System.out.println("The Order is done"); // for us to dubug later
 					}  else  System.out.println("The Order Fail");
-				if (countOrders==0) terminate();
 			}
 		});
 

@@ -13,10 +13,8 @@ import java.util.*;
  * You can add ONLY private methods and fields to this class.
  */
 public class ResourcesHolder {
-	private static ResourcesHolder instance;
-	private Vector<DeliveryVehicle> released;
-	private Vector<DeliveryVehicle> aquired;
-
+	private Queue<DeliveryVehicle> freeVehicles; // Queue for the free vehicles.
+	private Queue<Future<DeliveryVehicle>> requestVehicles; // Queue for the futures for us that we know if there request to be processed.
 
 	public static ResourcesHolder getInstance() {
 		return singletonHold.resourceInstance;
@@ -27,8 +25,8 @@ public class ResourcesHolder {
 	}
 
 	private ResourcesHolder(){
-		released=new Vector<>();
-		aquired=new Vector<>();
+		freeVehicles=new LinkedList<>();
+		requestVehicles=new LinkedList<>();
 	}
 
 	/**
@@ -39,12 +37,14 @@ public class ResourcesHolder {
 	 * 			{@link DeliveryVehicle} when completed.
 	 */
 	public Future<DeliveryVehicle> acquireVehicle() {  //TODO write this function right so it will return the right object
-		if(!released.isEmpty()) {
-			Future<DeliveryVehicle> deliveryVehicleFuture;
-			//deliveryVehicleFuture= released.get(0);
-			//	return deliveryVehicleFuture;
+		Future<DeliveryVehicle> future=null;
+		if (freeVehicles.isEmpty()){  //if there is no release vehicle
+			requestVehicles.add(future); //add request for vhicle by setting future with null value that when we get free vhicle we resolve it.
+
+		} else {  //there is free vhicle
+			future.resolve(freeVehicles.poll());
 		}
-		return null;
+		return future;
 	}
 
 	/**
@@ -54,9 +54,10 @@ public class ResourcesHolder {
 	 * @param vehicle	{@link DeliveryVehicle} to be released.
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
-		if(aquired.contains(vehicle)){
-			aquired.remove(vehicle);
-			released.addElement(vehicle);
+		if (!requestVehicles.isEmpty()) { //there is some request for delivery so we release this request with The released vehicle.
+			requestVehicles.poll().resolve(vehicle);
+		}else { //there is no request that waitings for and we add this vhicle to the Queue of the free vhicle
+			freeVehicles.add(vehicle);
 		}
 	}
 
@@ -66,10 +67,8 @@ public class ResourcesHolder {
 	 * @param vehicles	Array of {@link DeliveryVehicle} instances to store.
 	 */
 	public void load(DeliveryVehicle[] vehicles) {
-		if (instance != null) {
-			for (int i = 0; i < vehicles.length; i++) {
-				released.addElement(vehicles[i]);
-			}
+		for (DeliveryVehicle delivery:vehicles){
+			freeVehicles.add(delivery);
 		}
 	}
 }

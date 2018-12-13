@@ -6,18 +6,17 @@ import bgu.spl.mics.Event;
 public class DeliveryEvent<DeliveryVehicle> implements Event<DeliveryVehicle> {
 
 private String adress;
-private String book;
+private int distance;
 
 
-    public DeliveryEvent(String bookTitle, String address) {
-        this.adress=bookTitle;
-        this.book=address;
-    }
-
-    public String getBook() {
-        return this.book;
+    public DeliveryEvent(int d, String ad) {
+        this.adress=ad;
+        this.distance=d;
     }
     public String getAdress() {
-        return this.adress;
+        return adress;
+    }
+    public int getDistance() {
+        return distance;
     }
 }

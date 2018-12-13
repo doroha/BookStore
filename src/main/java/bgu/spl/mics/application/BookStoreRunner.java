@@ -34,9 +34,9 @@ public class BookStoreRunner {
         String[] veriable = input.split("\\s+");
 
             String jsonFile = veriable[0];
-//            String customerMap = veriable[1];
-//            String bookMap = veriable[2];
-//            String orderReceipts = veriable[3];
+            String customerMap = veriable[1];
+            String bookMap = veriable[2];
+            String orderReceipts = veriable[3];
             readJsonAndLoad(jsonFile);
 
     }

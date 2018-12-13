@@ -32,12 +32,12 @@ public class LogisticsService extends MicroService {
 		subscribeEvent(DeliveryEvent.class, (DeliveryEvent d) -> {
 
 			Future<Future<DeliveryVehicle>> futureVehicle = (Future<Future<DeliveryVehicle>>) sendEvent(new GetVehicleEvent(d));
-			DeliveryVehicle veh;
+			DeliveryVehicle vehicle;
 			if (futureVehicle!=null) {
-				 veh =futureVehicle.get().get();
-				if(veh !=null){
-					DeliveryEvent delivery =new DeliveryEvent(d.getDistance(),d.getAddress());
-					Future<DeliveryVehicle> future= (Future<DeliveryVehicle>) sendEvent(new ReturnVehicleEvent(veh));
+				vehicle=futureVehicle.get().get();
+				if(vehicle!=null){
+					vehicle.deliver(d.getAdress(),d.getDistance());
+					complete(d,vehicle);
 				}
 			}
 		});
@@ -46,5 +46,4 @@ public class LogisticsService extends MicroService {
 			terminate();
 		});
 	}
-
 }
