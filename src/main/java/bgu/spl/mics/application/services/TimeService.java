@@ -18,37 +18,55 @@ import java.util.concurrent.TimeUnit;
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
-public class TimeService extends MicroService{
+public class TimeService extends MicroService {
 
 
-	private int currentTick;
+	private int currentTick = 1;
 	private int speedTime;
-	private int durationTime;
-	private static TimeService instance=null;
+	private int duration;
+	private Timer timer;
+	private TimerTask timerTask;
 
-	private TimeService(int speed,int duration) {
+	public TimeService(int speed, int duration) {
 		super("Time Service");
-		this.speedTime=speed;
-		this.durationTime=duration;
-		this.currentTick=1;
-	}
-
-	public static TimeService getTimeService(int speed,int duration){
-		if (instance==null){
-			instance=new TimeService(speed,duration);
-		}
-		return instance;
+		this.speedTime = speed;
+		this.duration = duration;
+		this.currentTick = 1;
 	}
 
 	@Override
 	protected void initialize() {
-		TimeUnit unit=TimeUnit.MILLISECONDS;
-	//	timer.scheduleAtFixedRate(timerTask,speedTime,durationTime);  //time clockOn
-		while (currentTick<=durationTime){   //send the current tick to everyone that intrested in this broadcust
-				sendBroadcast(new TickBroadcast(currentTick));
-			try{	wait(unit.toMillis(speedTime));} catch (InterruptedException e){}
-			currentTick++;
-		}
-		sendBroadcast(new TickFinalBroadcast(currentTick));  //send the final Tick
+		System.out.println(getName()+ " Hello Book Store");
+		this.timer = new Timer();
+		this.timerTask = new TimerTask() {
+			@Override
+			public void run() {
+				if (currentTick < duration) {
+				//	System.out.println("Send Tick BroadCast: " + currentTick);
+					sendBroadcast(new TickBroadcast(currentTick));
+					currentTick++;
+				} else { //this the termination tick
+				//	System.out.println("Termination tick: " + currentTick);
+					sendBroadcast(new TickFinalBroadcast(currentTick));
+					timer.cancel();
+					//terminate(); TODO-- ???
+				}
+			}
+		};
+		timer.scheduleAtFixedRate(timerTask, 1000, speedTime);  //time clockOn TODO - how much delay we start the timer.
 	}
 }
+//
+//	public static void main (String [] args){
+//		TimeService timeService=new TimeService(1000,25);
+//		timeService.initialize();
+//	}
+//}
+//	TimeUnit unit=TimeUnit.MILLISECONDS;
+//		while (currentTick<=duration){   //send the current tick to everyone that intrested in this broadcust
+//			System.out.println(currentTick);
+//			sendBroadcast(new TickBroadcast(currentTick));
+//			try{	wait(unit.toMillis(speedTime));} catch (InterruptedException e){}
+//			currentTick++;
+//		}
+//		sendBroadcast(new TickFinalBroadcast(currentTick));  //send the final Tick

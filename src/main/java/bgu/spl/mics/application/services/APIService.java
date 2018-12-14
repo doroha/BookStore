@@ -15,6 +15,7 @@ import javafx.util.Pair;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -29,26 +30,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class APIService extends MicroService{
 	private Customer customer;
 	private HashMap<Integer,String> orders;
+	public CountDownLatch startSignal;
+	public CountDownLatch endSignal;
 
-	public APIService(Customer customer,HashMap<Integer,String>orderSchedule) {
-		super("APIService");
+	public APIService(Customer customer,HashMap<Integer,String>orderSchedule,int number,CountDownLatch start,CountDownLatch end) {
+		super("APIService: "+ number);
 		this.customer=customer;
 		this.orders=orderSchedule;
+		this.startSignal=start;
+		this.endSignal=end;
 	}
 	@Override
 	protected void initialize() {
-
+		System.out.println(getName()+ " Hello Book Store");
 		subscribeBroadcast(TickBroadcast.class,(TickBroadcast tick) -> {
+			// TODO - if there is 2 tick in the same time
 			if (orders.containsKey(tick.getTick())) {
 					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()),tick.getTick().intValue());
 					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
+					System.out.println(getName()+ " send book order event");
 					OrderReceipt receipt;
 					if (future != null) {
 						receipt = future.get();
 						customer.file(receipt);
 						sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(),customer.getAddress()));
 						System.out.println("The Order is done"); // for us to dubug later
-					}  else  System.out.println("The Order Fail");
+							}  else  System.out.println("The Order Fail");
 			}
 		});
 

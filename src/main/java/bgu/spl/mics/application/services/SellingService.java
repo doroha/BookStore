@@ -28,13 +28,13 @@ public class SellingService extends MicroService {
 
 	@Override
 	protected void initialize() {
-
+		System.out.println(getName()+ " Hello Book Store");
 		subscribeEvent(BookOrderEvent.class, (BookOrderEvent b) -> { //tries to performe the order
 
 					Future<Integer> available = (Future<Integer>) sendEvent(new CheckAvailabilityEvent<Integer>(b.getBookTitle()));  //check if the book in Inventory
 					if (available != null) {
 						Integer price = available.get();
-						if (price.intValue() == -1) {
+						if (price.intValue() == -1) {if (!b.getCustomer().possibleCharge(price.intValue()))
 							complete(b, null);
 						} else
 							synchronized (b.getCustomer()) {   //lock the customer that no other customer else will charge
@@ -46,7 +46,7 @@ public class SellingService extends MicroService {
 												moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
 												OrderReceipt receipt = new OrderReceipt(getName(),b.getCustomer().getId(), b.getBookTitle(), price.intValue(),  b.getOrderTick(), b.getOrderTick(),  b.getOrderTick());
 												moneyRegister.file(receipt);
-												complete(b, receipt);
+												complete(b,receipt);
 											} else {
 												complete(b, null);  // it is not possible to charge the customer
 											}

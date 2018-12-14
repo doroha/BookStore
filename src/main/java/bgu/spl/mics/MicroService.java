@@ -161,6 +161,24 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        final String threadName = Thread.currentThread().getName();
+        try{
+            startSignal.await();
+            for(int i=0;i &lt; 3; i++){
+                System.out.println("Thread:"+ threadName + " is working");
+                try{
+                    Thread.sleep((int)(Math.random()*300));
+                }catch (InterruptedException ie){
+                }
+            }
+            System.out.println("Thread:"+ threadName + " is finishing");
+//Indicate end of a thread.
+            endSignal.countDown();
+        }
+        catch(InterruptedException ex){
+            ex.printStackTrace();
+        }
+
         msgBus.register(this);
         initialize();
         Message m;

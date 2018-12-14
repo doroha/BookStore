@@ -1,9 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.WeakHashMap;
+import java.io.*;
+import java.util.*;
 
 /**
  * Passive object representing the store finance management. 
@@ -14,7 +12,7 @@ import java.util.WeakHashMap;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class MoneyRegister {
+public class MoneyRegister implements Serializable {
 
 	private List<OrderReceipt> receipts;
 	private static MoneyRegister instance;
@@ -63,7 +61,38 @@ return SingletonH.moneyNew;
      * currently in the MoneyRegister
      * This method is called by the main method in order to generate the output..
      */
-	public void printOrderReceipts(String filename) {
 
-	}
+		public void printOrderReceipts(String filename) {
+//			HashMap<Integer, OrderReceipt> hashReciept=new HashMap<>();
+//			for (OrderReceipt r: receipts) {
+//				hashReciept.put(r.getOrderId(), r);
+//			}
+//			try {
+			try {
+				FileOutputStream outputF = new FileOutputStream(filename);
+				ObjectOutputStream outputStream=new ObjectOutputStream(outputF);
+				outputStream.writeObject(receipts);
+				outputStream.close();
+				outputF.close();
+			}catch (IOException I){I.printStackTrace(); }
+
+//				File file=new File("outExample.txt");
+//				FileOutputStream outputF = new FileOutputStream(file);
+//				PrintWriter printWrite = new PrintWriter(outputF);
+//				for(OrderReceipt receipt:receipts ){
+//					printWrite.println("id " +receipt.getOrderId() + ", seller: "
+//							+receipt.getSeller() + ", customer id: "
+//							+receipt.getCustomerId() +", book title: "
+//							+receipt.getBookTitle()+ ", price: "
+//							+receipt.getPrice()+", issued tick: "
+//							+receipt.getIssuedTick()+ ", order tick: "
+//							+receipt.getOrderTick()+ ", process tick: "
+//							+r.getProcessTick());
+//				}
+//				printWrite.flush();
+//				printWrite.close();
+//				outputF.close();
+//
+//			}catch (Exception e){ }
+		}
 }

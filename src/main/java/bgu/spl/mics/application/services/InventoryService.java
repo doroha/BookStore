@@ -33,7 +33,7 @@ public class InventoryService extends MicroService{
 
 	@Override
 	protected void initialize() {
-
+		System.out.println(getName()+ " Hello Book Store");
 		subscribeEvent(CheckAvailabilityEvent.class,(CheckAvailabilityEvent c) -> {  //check if the book is avialeble in the inventory and the get the price of this book
 			if (inventory==null){ System.out.print("Terminate"); terminate(); }  //TODO-what to do with inventory==null
 				Integer price=new Integer(inventory.checkAvailabiltyAndGetPrice(c.getBookTitle()));

@@ -1,4 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
+import java.io.*;
+import java.util.*;
 
 /**
  * Passive data-object representing a receipt that should 
@@ -7,7 +9,7 @@ package bgu.spl.mics.application.passiveObjects;
  * <p>
  * You may add fields and methods to this class as you see fit (including public methods).
  */
-public class OrderReceipt {
+public class OrderReceipt implements Serializable {
 	private int orderId=0;
 	private String seller;
 	private int customerId;

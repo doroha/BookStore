@@ -14,7 +14,7 @@ import java.util.*;
  * <p>
  * You can add ONLY private fields and methods to this class as you see fit.
  */
-public class Inventory{
+public class Inventory implements Serializable{
 
   private Vector<BookInventoryInfo> booksColec;
 
@@ -25,7 +25,7 @@ public class Inventory{
 	    private static Inventory inventoryNew= new Inventory();
     }
 	private Inventory(){
-
+	booksColec=new Vector<>();
     }
 	/**
      * Initializes the store inventory. This method adds all the items given to the store
@@ -89,17 +89,21 @@ public class Inventory{
 			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
 		}
 		try {
-			File file = new File("outExample.txt");
-			FileOutputStream outputF = new FileOutputStream(file);
-			PrintWriter printWrite = new PrintWriter(outputF);
-			for (Map.Entry<String, Integer> m : hashBook.entrySet()) {
-				printWrite.println(m.getKey() + ", amount: " + m.getValue());
-			}
-			printWrite.flush();
-			printWrite.close();
+			FileOutputStream outputF = new FileOutputStream(filename);
+			ObjectOutputStream outputStream=new ObjectOutputStream(outputF);
+			outputStream.writeObject(hashBook);
+			outputStream.close();
 			outputF.close();
-		}catch (Exception e){}
-		}
+		}catch (IOException I){I.printStackTrace(); }
+
+//			PrintWriter printWrite = new PrintWriter(outputF);
+//			for (BookInventoryInfo book : booksColec) {
+//				printWrite.println(book.getBookTitle() + ", amount: " + book.getPrice());
+//			}
+//			printWrite.flush();
+//			printWrite.close();
+//			outputF.close();
+	}
 
 		public int amountBooks(){return booksColec.size();}
 

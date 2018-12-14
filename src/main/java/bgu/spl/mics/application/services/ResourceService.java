@@ -33,12 +33,13 @@ public class ResourceService extends MicroService {
 	protected void initialize() {
 
 		subscribeEvent(GetVehicleEvent.class, (GetVehicleEvent v) -> {
-
+			System.out.println(getName()+ " Hello Book Store");
 			DeliveryVehicle vehicle=holder.acquireVehicle().get();
 			complete(v,vehicle);
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{
+			//TODO - stop all the vhicle threads.
 			terminate();
 		});
 	}
