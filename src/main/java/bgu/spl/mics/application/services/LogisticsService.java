@@ -35,15 +35,17 @@ public class LogisticsService extends MicroService {
 
 			System.out.println(getName()+ " get DeliveryEvent and send GetVehicleEvent");
 			Future<Future<DeliveryVehicle>> futureVehicle = (Future<Future<DeliveryVehicle>>) sendEvent(new GetVehicleEvent(d));
-			DeliveryVehicle vehicle;
 			if (futureVehicle!=null) {
-				vehicle= futureVehicle.get().get();
+				DeliveryVehicle vehicle;
+				Future<DeliveryVehicle> future=futureVehicle.get();
+				vehicle= future.get();
 				System.out.println(getName()+ " get Vehicle");
 				if(vehicle!=null){
 					System.out.println(getName()+ " send deliver with: " + vehicle.getLicense());
-					vehicle.deliver(d.getAdress(),d.getDistance());
+					vehicle.deliver(d.getAdress(),d.getDistance());   //the vehicle is sleep now fot the time of the deliver.
 					System.out.println("The Deliver is done");
 					complete(d,vehicle);
+					sendEvent(new ReturenVehicleEvent(vehicle));  //send the free vehicle after his deliver back to the resorceHolder that he will keep it and relase new request
 				}
 			} else {System.out.println("No microservices registed to handle GetVehicleEvent");}
 		});

@@ -40,7 +40,6 @@ public class ResourcesHolder {
 		Future<DeliveryVehicle> future=new Future<>();
 		if (freeVehicles.isEmpty()){  //if there is no release vehicle
 			requestVehicles.add(future); //add request for vhicle by setting future with null value that when we get free vhicle we resolve it.
-
 		} else {  //there is free vhicle
 			future.resolve(freeVehicles.poll());
 		}

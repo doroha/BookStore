@@ -3,6 +3,7 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.Future;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.Messages.GetVehicleEvent;
+import bgu.spl.mics.application.Messages.ReturenVehicleEvent;
 import bgu.spl.mics.application.Messages.TickFinalBroadcast;
 import bgu.spl.mics.application.passiveObjects.DeliveryVehicle;
 import bgu.spl.mics.application.passiveObjects.ResourcesHolder;
@@ -39,8 +40,14 @@ public class ResourceService extends MicroService {
 
 		subscribeEvent(GetVehicleEvent.class, (GetVehicleEvent v) -> {
 			System.out.println(getName()+ " Tries to acquire Vehicle");
-			DeliveryVehicle vehicle=holder.acquireVehicle().get();
-			complete(v,vehicle);
+			Future<DeliveryVehicle> deliveryVehicleFuture=holder.acquireVehicle();
+			complete(v,deliveryVehicleFuture);
+		});
+
+		subscribeEvent(ReturenVehicleEvent.class,(ReturenVehicleEvent rt)->{  // free the vehicle after his delivery
+			DeliveryVehicle freeVehicle=rt.getFreeVehicle();
+			holder.releaseVehicle(freeVehicle);
+			complete(rt,freeVehicle);
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{

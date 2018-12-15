@@ -33,6 +33,7 @@ public class APIService extends MicroService{
 	private HashMap<Integer,Vector<String>> orders;
 	private CountDownLatch latch;
 
+
 	public APIService(Customer customer,HashMap<Integer,Vector<String>>orderSchedule,int number,CountDownLatch lat ) { // TODO - Latch
 		super("APIService: "+ number);
 		this.customer=customer;

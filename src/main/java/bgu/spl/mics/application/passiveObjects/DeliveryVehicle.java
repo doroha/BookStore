@@ -9,12 +9,10 @@ package bgu.spl.mics.application.passiveObjects;
 public class DeliveryVehicle extends Thread {
 	private int license;
 	private int speed;
-	private ResourcesHolder resourcesHolder;
 
 	 public DeliveryVehicle(int license, int speed) {
 		this.license=license;
 		this.speed=speed;
-		resourcesHolder=ResourcesHolder.getInstance();
 	  }
 	/**
      * Retrieves the license of this delivery vehicle.   
@@ -43,6 +41,5 @@ public class DeliveryVehicle extends Thread {
 		try {
 			Thread.sleep(speed*distance);
 		}catch (Exception e){}
-		resourcesHolder.releaseVehicle(this);
 	}
 }

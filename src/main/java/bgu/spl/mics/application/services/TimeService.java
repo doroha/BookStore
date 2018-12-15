@@ -49,6 +49,7 @@ public class TimeService extends MicroService {
 					System.out.println("Termination tick: " + currentTick);
 					sendBroadcast(new TickFinalBroadcast(currentTick));
 					timer.cancel();
+					terminate();
 					// TODO-- ??? terminate the time service
 				}
 			}

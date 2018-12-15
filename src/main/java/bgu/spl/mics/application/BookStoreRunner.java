@@ -261,15 +261,19 @@ private static void readJsonAndLoad(String jsonFileName) {
     args[3]="OrderReceipts";
     args[4]="MoneyRegister";
 
-    //TODO - kill all threads
-
-
+    //kill All threads
+    for (int i=0;i<threads.size();i++){
+        try {
+            threads.get(i).join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
      //Prints all Outputs
     printCustomersToFile(args[1]);
     inventory.printInventoryToFile(args[2]);
     register.printOrderReceipts(args[3]);
     printMoneyRegisterObject(args[4]);
-
     }
 }
 
