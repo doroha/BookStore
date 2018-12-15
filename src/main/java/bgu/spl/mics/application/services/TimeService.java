@@ -42,20 +42,29 @@ public class TimeService extends MicroService {
 			@Override
 			public void run() {
 				if (currentTick < duration) {
-				//	System.out.println("Send Tick BroadCast: " + currentTick);
+					System.out.println("Send Tick BroadCast: " + currentTick);
 					sendBroadcast(new TickBroadcast(currentTick));
 					currentTick++;
 				} else { //this the termination tick
-				//	System.out.println("Termination tick: " + currentTick);
+					System.out.println("Termination tick: " + currentTick);
 					sendBroadcast(new TickFinalBroadcast(currentTick));
 					timer.cancel();
-					//terminate(); TODO-- ???
+					// TODO-- ??? terminate the time service
 				}
 			}
 		};
 		timer.scheduleAtFixedRate(timerTask, 1000, speedTime);  //time clockOn TODO - how much delay we start the timer.
 	}
 }
+
+
+
+
+
+
+
+
+
 //
 //	public static void main (String [] args){
 //		TimeService timeService=new TimeService(1000,25);

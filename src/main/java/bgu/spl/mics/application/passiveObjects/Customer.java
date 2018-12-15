@@ -91,5 +91,8 @@ public class Customer implements Serializable {
 
 	public boolean possibleCharge(int price){return getAvailableCreditAmount()>=price;}
 
+	//add new recipt
 	public void file(OrderReceipt receipt){this.receipts.add(receipt);}
+
+
 }

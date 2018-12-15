@@ -63,11 +63,6 @@ return SingletonH.moneyNew;
      */
 
 		public void printOrderReceipts(String filename) {
-//			HashMap<Integer, OrderReceipt> hashReciept=new HashMap<>();
-//			for (OrderReceipt r: receipts) {
-//				hashReciept.put(r.getOrderId(), r);
-//			}
-//			try {
 			try {
 				FileOutputStream outputF = new FileOutputStream(filename);
 				ObjectOutputStream outputStream=new ObjectOutputStream(outputF);
@@ -75,24 +70,5 @@ return SingletonH.moneyNew;
 				outputStream.close();
 				outputF.close();
 			}catch (IOException I){I.printStackTrace(); }
-
-//				File file=new File("outExample.txt");
-//				FileOutputStream outputF = new FileOutputStream(file);
-//				PrintWriter printWrite = new PrintWriter(outputF);
-//				for(OrderReceipt receipt:receipts ){
-//					printWrite.println("id " +receipt.getOrderId() + ", seller: "
-//							+receipt.getSeller() + ", customer id: "
-//							+receipt.getCustomerId() +", book title: "
-//							+receipt.getBookTitle()+ ", price: "
-//							+receipt.getPrice()+", issued tick: "
-//							+receipt.getIssuedTick()+ ", order tick: "
-//							+receipt.getOrderTick()+ ", process tick: "
-//							+r.getProcessTick());
-//				}
-//				printWrite.flush();
-//				printWrite.close();
-//				outputF.close();
-//
-//			}catch (Exception e){ }
 		}
 }

@@ -7,6 +7,8 @@ import bgu.spl.mics.application.Messages.*;
 import bgu.spl.mics.application.passiveObjects.*;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Selling service in charge of taking orders from customers.
  * Holds a reference to the {@link MoneyRegister} singleton of the store.
@@ -20,10 +22,12 @@ import java.util.*;
 public class SellingService extends MicroService {
 
 	private MoneyRegister moneyRegister;
+	private CountDownLatch latch;
 
-	public SellingService(int number) {
+	public SellingService(int number,CountDownLatch lat) {
 		super("SellingService" + number);
 		this.moneyRegister = MoneyRegister.getInstance();
+		this.latch=lat;
 	}
 
 	@Override
@@ -31,39 +35,53 @@ public class SellingService extends MicroService {
 		System.out.println(getName()+ " Hello Book Store");
 		subscribeEvent(BookOrderEvent.class, (BookOrderEvent b) -> { //tries to performe the order
 
-					Future<Integer> available = (Future<Integer>) sendEvent(new CheckAvailabilityEvent<Integer>(b.getBookTitle()));  //check if the book in Inventory
-					if (available != null) {
-						Integer price = available.get();
-						if (price.intValue() == -1) {if (!b.getCustomer().possibleCharge(price.intValue()))
-							complete(b, null);
-						} else
-							synchronized (b.getCustomer()) {   //lock the customer that no other customer else will charge
-								if (b.getCustomer().possibleCharge(price.intValue())) {
-									Future<OrderResult> orderResult = (Future<OrderResult>) sendEvent(new TakeEvent<OrderResult>(b.getBookTitle()));
-									if (orderResult != null) {
-										if (orderResult.get().equals(OrderResult.SUCCESSFULLY_TAKEN)) {
-											if (b.getCustomer().possibleCharge(price.intValue())) { //check if mo one else charge meenwile this customer
-												moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
-												OrderReceipt receipt = new OrderReceipt(getName(),b.getCustomer().getId(), b.getBookTitle(), price.intValue(),  b.getOrderTick(), b.getOrderTick(),  b.getOrderTick());
-												moneyRegister.file(receipt);
-												complete(b,receipt);
-											} else {
-												complete(b, null);  // it is not possible to charge the customer
-											}
-										} else {
-											complete(b, null); // the order is NOT_IN_STOCK
-										}
+			System.out.println(getName() + "get BookorderEvent and send CheckAvailabilityEvent event");
+			Future<Integer> available = (Future<Integer>) sendEvent(new CheckAvailabilityEvent<Integer>(b.getBookTitle()));  //check if the book in Inventory
+			System.out.println(getName() + " Future available or null is comming");
+			Integer price = null;
+			if (available != null) {
+				price = available.get();
+				System.out.println(getName() + " there is result for the book");
+				if (price.intValue() == -1 || !b.getCustomer().possibleCharge(price.intValue())) { //cant buy the book
+					System.out.println(getName() + ": " + b.getCustomer().getName() + " can't buy the book - the book is not available or the customer's money is not enough");
+					complete(b, null);
+				} else {   // can buy the book
+					synchronized (b.getCustomer()) {   //lock the customer that no other customer else will charge
+						if (b.getCustomer().possibleCharge(price.intValue())) {
+							Future<OrderResult> orderResult = (Future<OrderResult>) sendEvent(new TakeEvent<OrderResult>(b.getBookTitle()));
+							System.out.println(getName() + " Future OrderResult or null is comming");
+							if (orderResult != null) {
+								if (orderResult.get().equals(OrderResult.SUCCESSFULLY_TAKEN)) {
+									if (b.getCustomer().possibleCharge(price.intValue())) { //check if mo one else charge meenwile this customer
+										System.out.println(getName() + " Now finally we can charge the customer: " + b.getCustomer().getName());
+										moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
+										OrderReceipt receipt = new OrderReceipt(getName(), b.getCustomer().getId(), b.getBookTitle(), price.intValue(), b.getOrderTick(), b.getOrderTick(), b.getOrderTick());
+										moneyRegister.file(receipt);
+										System.out.println(getName() + " The charge is done and there is recipt for pruches");
+										complete(b, receipt);
+									} else {
+										System.out.println(getName() + " it is not possible to charge the customer");
+										complete(b, null);  // it is not possible to charge the customer
 									}
-								} else { // it is not possible to charge the customer
-									complete(b, null);
+								} else {
+									System.out.println(getName() + " the order is NOT_IN_STOCK");
+									complete(b, null); // the order is NOT_IN_STOCK
 								}
 							}
+						} else { // it is not possible to charge the customer
+							System.out.println(getName() + " it is not possible to charge the customer");
+							complete(b, null);
+						}
 					}
-				});
+				}
+			} else {System.out.println("No Micro-Service has registered to handle CheckAvailabilityEvent! The event cannot be processed");}
+		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick) ->{
+				System.out.println(getName()+ " Terminated");
 				terminate();
 		});
+		latch.countDown();
 	}
 }
 

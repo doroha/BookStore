@@ -28,11 +28,10 @@ public class BookStoreRunner {
     //fields i added
     private static BookInventoryInfo[] initInventory;
     private static DeliveryVehicle[] initResources;
-    private static boolean stop=false;
+    //Schedule services
     private static Vector<Thread> threads;
+    private static CountDownLatch latch;   //TODO - Schedule services static ???
     private static int countThreads;
-    private static CountDownLatch startSignal;   //TODO - Schedule services static ???
-    private static  CountDownLatch endSignal;
 
 
     public static void main(String[] argss) throws IOException {
@@ -40,34 +39,49 @@ public class BookStoreRunner {
         String[]args=new String[5];
         args[0]= "src/main/java/sample.json";  //the location of the json file input
 
-        startSignal=new CountDownLatch(1);
-        endSignal = new CountDownLatch(countThreads);
-        readJsonAndLoad(args[0]);
-        runServices(microServices);
-        stopProgram();
+        readJsonAndLoad(args[0]);  //Load the program
+
+        runServices(microServices); //run the program
+
+        stopProgram(args);  //Stop the program
     }
 //------------Load-----------------------------//
-    private static void readJsonAndLoad(String jsonFileName) {
-        JsonParser parser = new JsonParser();
-        JsonObject jObj = null;
-        try{
-            jObj = (JsonObject) parser.parse(new FileReader(jsonFileName));
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
+private static void readJsonAndLoad(String jsonFileName) {
+    JsonParser parser = new JsonParser();
+    JsonObject jObj = null;
+    try{
+        jObj = (JsonObject) parser.parse(new FileReader(jsonFileName));
+    }catch (FileNotFoundException e){
+        e.printStackTrace();
+    }
 
-        JsonObject rootObject = jObj.getAsJsonObject(); //the first input
+    JsonObject rootObject = jObj.getAsJsonObject(); //the first input
 
-        inventory=Inventory.getInstance();
-        resource=ResourcesHolder.getInstance();
-        register=MoneyRegister.getInstance();
-        reciepts=new LinkedList<>();
-        threads=new Vector<>();
+    microServices = new Vector<>();
+    inventory=Inventory.getInstance();
+    resource=ResourcesHolder.getInstance();
+    register=MoneyRegister.getInstance();
+    reciepts=new LinkedList<>();
+    threads=new Vector<>();
+    countThreads=countServices(rootObject);
+    latch= new CountDownLatch(countThreads);
 
-        loadinventory(rootObject);
-        loadResource(rootObject);
-        loadServices(rootObject);
-        loadCustomers(rootObject);
+    loadinventory(rootObject);
+    loadResource(rootObject);
+
+    loadServices(rootObject);
+    loadCustomers(rootObject);
+}
+
+    private static int countServices(JsonObject jobj){
+        JsonObject services = jobj.getAsJsonObject("services");
+        int countSellings = services.get("selling").getAsInt();
+        int countInventory = services.get("inventoryService").getAsInt();
+        int countLogistics = services.get("logistics").getAsInt();
+        int countResorces = services.get("resourcesService").getAsInt();
+        JsonArray customerArray=services.getAsJsonArray("customers");
+        int countAPI=customerArray.size();
+        return countSellings+countInventory+countLogistics+countResorces+countAPI;
     }
 
     private static void loadResource(JsonObject jobj){
@@ -95,7 +109,7 @@ public class BookStoreRunner {
         /** we initial all Micro services here
          *
          */
-        microServices = new Vector<>();
+
         int speedTime;
         int duration;
         JsonObject time = services.getAsJsonObject("time");
@@ -108,23 +122,24 @@ public class BookStoreRunner {
         //microservice Selling Service and its initial
         int countSellings = services.get("selling").getAsInt();
 
-        for (int i = 0; i < countSellings; i++) microServices.add(new SellingService(i+1));
+        for (int i = 0; i < countSellings; i++) microServices.add(new SellingService(i+1,latch));
 
         //microservice Inventory Service and its initial
         int countInventory = services.get("inventoryService").getAsInt();
 
-        for (int i = 0; i < countInventory; i++) microServices.add(new InventoryService(i+1));
+        for (int i = 0; i < countInventory; i++) microServices.add(new InventoryService(i+1,latch));
 
         //microservice Logistic Service and its initial
         int countLogistics = services.get("logistics").getAsInt();
 
-        for (int i = 0; i < countLogistics; i++) microServices.add(new LogisticsService(i+1));
+        for (int i = 0; i < countLogistics; i++) microServices.add(new LogisticsService(i+1,latch));
 
         //microservice resource Service and its initial
         int countResorces = services.get("resourcesService").getAsInt();
 
-        for (int i = 0; i < countResorces; i++) microServices.add(new ResourceService(i+1));
+        for (int i = 0; i < countResorces; i++) microServices.add(new ResourceService(i+1,latch));
     }
+
     private static void loadCustomers(JsonObject jobj){
         JsonObject location = jobj.getAsJsonObject("services");
         JsonArray customerArray=location.getAsJsonArray("customers");
@@ -158,19 +173,21 @@ public class BookStoreRunner {
             Customer newCustomer= new Customer(name, id, address, distance,numberCredit,amountCredit);
             customers.put(newCustomer.getId(), newCustomer);
 
-            HashMap<Integer,String> ordersCustomer=new HashMap<>(); // define the orders of the customers
+            HashMap<Integer,Vector<String>> ordersCustomer=new HashMap<>(); // define the orders of the customers
             //array order schedule
+
             ordersArray= text.get("orderSchedule").getAsJsonArray();
             for(int j=0; j< ordersArray.size() ; j++){
                 order = ordersArray.get(j).getAsJsonObject();
                 bookTitleOrder= order.get("bookTitle").getAsJsonPrimitive().getAsString();
                 tick= order.get("tick").getAsJsonPrimitive().getAsInt();
-                ordersCustomer.put(new Integer(tick),bookTitleOrder);
+                Integer tickKey=new Integer(tick);
+                ordersCustomer.putIfAbsent(tickKey,new Vector<String>());
+                ordersCustomer.get(tickKey).add(bookTitleOrder); //put new book in tickKey
             }
-            microServices.add(new APIService(newCustomer,ordersCustomer,i+1));
+            microServices.add(new APIService(newCustomer,ordersCustomer,i+1,latch));
         }
     }
-
 
     private static void loadinventory(JsonObject jobj){
         JsonArray booksArray = jobj.getAsJsonArray("initialInventory");
@@ -196,7 +213,7 @@ public class BookStoreRunner {
     }
 
     //------------Run-----------------------------------//
-    private static void runServices(Vector<MicroService>microServices){   //TODO - dtart
+    private static void runServices(Vector<MicroService>microServices){
         MicroService timeSer= (MicroService)microServices.get(0);  //put the TimeService first on the threads vector.
         threads.add(new Thread(timeSer));  //now the tieservice is the first thread
         for(int i=1; i<microServices.size();i++){
@@ -204,21 +221,55 @@ public class BookStoreRunner {
             threads.add(new Thread(m));
             threads.get(i).start(); //starts the threads
         }
-        threads.get(0).start();             //run the TimeService after all the other microServices
 
-        countThreads=microServices.size(); //after start the services lets schedule them
-        endSignal=new CountDownLatch(countThreads);
-
-        startSignal.countDown(); // let all threads proceed
-    }
-
-    //------------Stop-----------------------------//
-    private static void stopProgram() {
-        try {
-            endSignal.await();
+        try {    //Schedule the threads
+            latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        threads.get(0).start();
+    }
+
+
+    //------------Prints To Files-----------------------------//
+
+    private static void printCustomersToFile(String filename){
+        try {
+            FileOutputStream outputF = new FileOutputStream(filename);
+            ObjectOutputStream outputStream=new ObjectOutputStream(outputF);
+            outputStream.writeObject(customers);
+            outputStream.close();
+            outputF.close();
+        }catch (IOException I){I.printStackTrace(); }
+    }
+
+    private static void printMoneyRegisterObject(String filename){
+        try {
+            FileOutputStream outputF = new FileOutputStream(filename);
+            ObjectOutputStream outputStream=new ObjectOutputStream(outputF);
+            outputStream.writeObject(register);
+            outputStream.close();
+            outputF.close();
+        }catch (IOException I){I.printStackTrace(); }
+    }
+
+    //------------Stop-----------------------------//
+    private static void stopProgram(String[]args) {
+
+    args[1]="Customers";
+    args[2]="Books";
+    args[3]="OrderReceipts";
+    args[4]="MoneyRegister";
+
+    //TODO - kill all threads
+
+
+     //Prints all Outputs
+    printCustomersToFile(args[1]);
+    inventory.printInventoryToFile(args[2]);
+    register.printOrderReceipts(args[3]);
+    printMoneyRegisterObject(args[4]);
+
     }
 }
 
@@ -234,6 +285,12 @@ public class BookStoreRunner {
 
 
 
+
+//        try {
+//            endSignal.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 //    private static void function(String []paths, HashMap<Integer, Customer> customers) {
 //        Customer p = new Customer("lynn" , 31909140, "Ben Zvi", 43, 12, 3);

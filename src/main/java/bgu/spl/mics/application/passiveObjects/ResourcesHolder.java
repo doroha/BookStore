@@ -37,7 +37,7 @@ public class ResourcesHolder {
 	 * 			{@link DeliveryVehicle} when completed.
 	 */
 	public Future<DeliveryVehicle> acquireVehicle() {  //TODO write this function right so it will return the right object
-		Future<DeliveryVehicle> future=null;
+		Future<DeliveryVehicle> future=new Future<>();
 		if (freeVehicles.isEmpty()){  //if there is no release vehicle
 			requestVehicles.add(future); //add request for vhicle by setting future with null value that when we get free vhicle we resolve it.
 

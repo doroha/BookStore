@@ -95,16 +95,7 @@ public class Inventory implements Serializable{
 			outputStream.close();
 			outputF.close();
 		}catch (IOException I){I.printStackTrace(); }
-
-//			PrintWriter printWrite = new PrintWriter(outputF);
-//			for (BookInventoryInfo book : booksColec) {
-//				printWrite.println(book.getBookTitle() + ", amount: " + book.getPrice());
-//			}
-//			printWrite.flush();
-//			printWrite.close();
-//			outputF.close();
 	}
 
 		public int amountBooks(){return booksColec.size();}
-
 	}

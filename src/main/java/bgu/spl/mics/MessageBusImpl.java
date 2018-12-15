@@ -59,10 +59,8 @@ public class MessageBusImpl implements MessageBus {
 
 	public void sendBroadcast(Broadcast b) {
 		broadcast_Hashmap.putIfAbsent(b.getClass(), new LinkedBlockingQueue<>());
-		if (broadcast_Hashmap.get(b.getClass()).isEmpty()) return;
-		if (b.getClass().equals(TickFinalBroadcast.class)){
-       //TODO - temination of the microservices one by one.
-		}else {
+		if (!broadcast_Hashmap.get(b.getClass()).isEmpty()){
+       		//TODO - temination of the microservices one by one. - DFS
 			for (MicroService m : broadcast_Hashmap.get(b.getClass())) {
 				try {
 					microServiceMsg_HashMap.get(m).put(b);
@@ -71,7 +69,7 @@ public class MessageBusImpl implements MessageBus {
 				}
 			}
 		}
-	}
+    }
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {  //Round Robin

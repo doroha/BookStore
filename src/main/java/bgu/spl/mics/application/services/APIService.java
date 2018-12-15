@@ -14,6 +14,7 @@ import javafx.util.Pair;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
@@ -29,39 +30,46 @@ import java.util.concurrent.CountDownLatch;
  */
 public class APIService extends MicroService{
 	private Customer customer;
-	private HashMap<Integer,String> orders;
-	public CountDownLatch startSignal;
-	public CountDownLatch endSignal;
+	private HashMap<Integer,Vector<String>> orders;
+	private CountDownLatch latch;
 
-	public APIService(Customer customer,HashMap<Integer,String>orderSchedule,int number,CountDownLatch start,CountDownLatch end) {
+	public APIService(Customer customer,HashMap<Integer,Vector<String>>orderSchedule,int number,CountDownLatch lat ) { // TODO - Latch
 		super("APIService: "+ number);
 		this.customer=customer;
 		this.orders=orderSchedule;
-		this.startSignal=start;
-		this.endSignal=end;
+		this.latch=lat;
 	}
 	@Override
 	protected void initialize() {
+
 		System.out.println(getName()+ " Hello Book Store");
-		subscribeBroadcast(TickBroadcast.class,(TickBroadcast tick) -> {
-			// TODO - if there is 2 tick in the same time
-			if (orders.containsKey(tick.getTick())) {
-					BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, orders.get(tick.getTick()),tick.getTick().intValue());
-					Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
-					System.out.println(getName()+ " send book order event");
-					OrderReceipt receipt;
-					if (future != null) {
-						receipt = future.get();
-						customer.file(receipt);
-						sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(),customer.getAddress()));
-						System.out.println("The Order is done"); // for us to dubug later
-							}  else  System.out.println("The Order Fail");
+		subscribeBroadcast(TickBroadcast.class,(TickBroadcast t) -> {
+			Integer tick=t.getTick();
+			if (orders.containsKey(tick)){ //if i have an orders about this tick
+					for (String bookTitle:orders.get(tick)) { //for all the orders that need proccess in the same tick
+						BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, bookTitle, tick.intValue());
+						System.out.println(getName() + " send BookOrderEvent event");
+						Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
+						OrderReceipt receipt;
+						System.out.println(getName() + " recipt or null is coming");
+						if (future != null) {
+							receipt = future.get();
+							customer.file(receipt);
+							System.out.println("The Order is done and there is recipt"); // for us to dubug later
+							System.out.println(getName() + " send DeliveryEvent ");
+							sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(), customer.getAddress()));
+						} else {
+							System.out.println("No Micro-Service has registered to handle BookOrderEvent! The event cannot be processed");
+						}
+					}
 			}
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick) ->{
+			System.out.println(getName()+ " Terminated");
 			terminate();
 		});
+		latch.countDown();
 	}
 }
 
