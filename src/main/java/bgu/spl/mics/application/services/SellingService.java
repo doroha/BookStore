@@ -48,8 +48,8 @@ public class SellingService extends MicroService {
 				} else {   // can buy the book
 					synchronized (b.getCustomer()) {   //lock the customer that no other customer else will charge
 						if (b.getCustomer().possibleCharge(price.intValue())) {
-							Future<OrderResult> orderResult = (Future<OrderResult>) sendEvent(new TakeEvent<OrderResult>(b.getBookTitle()));
 							System.out.println(getName() + " Future OrderResult or null is comming");
+							Future<OrderResult> orderResult = (Future<OrderResult>) sendEvent(new TakeEvent<OrderResult>(b.getBookTitle()));
 							if (orderResult != null) {
 								if (orderResult.get().equals(OrderResult.SUCCESSFULLY_TAKEN)) {
 									if (b.getCustomer().possibleCharge(price.intValue())) { //check if mo one else charge meenwile this customer

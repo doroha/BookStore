@@ -169,7 +169,7 @@ public abstract class MicroService implements Runnable {
             try {
                 m=msgBus.awaitMessage(this);  //Excuting an callback for specific Microservise
                 messages.get(m.getClass()).call(m);
-            } catch (InterruptedException e) {}  //TODO - DeadLock
+            } catch (InterruptedException e) {}
         }
         msgBus.unregister(this);
         System.out.println(getName()+ " Terminated");

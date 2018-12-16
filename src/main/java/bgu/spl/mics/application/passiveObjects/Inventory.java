@@ -52,12 +52,11 @@ public class Inventory implements Serializable{
 	public synchronized OrderResult take (String book) {
 		for (BookInventoryInfo b:booksColec) {
 			if (b.getBookTitle().equals(book) && b.getAmountInInventory() > 0) {
-					                							  // TODO - lock the book ?
 					b.setAmount(b.getAmountInInventory() - 1);
-				return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
+				return OrderResult.SUCCESSFULLY_TAKEN;
 			}
 		}
-		return OrderResult.valueOf("NOT_IN STOCK");
+		return OrderResult.NOT_IN_STOCK;
 	}
 	/**
      * Checks if a certain book is available in the inventory.
@@ -83,9 +82,9 @@ public class Inventory implements Serializable{
      * This method is called by the main method in order to generate the output.
      */
 	public void printInventoryToFile (String filename){
-		HashMap<String, Integer> hashBook=new HashMap<>();
+		HashMap<String,Integer> hashBook=new HashMap<>();
 		for(BookInventoryInfo b: booksColec){
-			hashBook.put(b.getBookTitle(),b.getAmountInInventory());
+			hashBook.put(b.getBookTitle(),new Integer(b.getAmountInInventory()));
 		}
 		try {
 			FileOutputStream outputF = new FileOutputStream(filename);
