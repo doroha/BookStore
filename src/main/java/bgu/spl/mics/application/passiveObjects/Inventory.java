@@ -96,5 +96,4 @@ public class Inventory implements Serializable{
 		}catch (IOException I){I.printStackTrace(); }
 	}
 
-		public int amountBooks(){return booksColec.size();}
 	}

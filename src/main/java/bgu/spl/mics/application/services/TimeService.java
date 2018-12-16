@@ -6,6 +6,7 @@ import bgu.spl.mics.application.Messages.TickFinalBroadcast;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class TimeService extends MicroService {
 
 
-	private int currentTick = 1;
+	private AtomicInteger currentTick;
 	private int speedTime;
 	private int duration;
 	private Timer timer;
@@ -31,29 +32,28 @@ public class TimeService extends MicroService {
 		super("Time Service");
 		this.speedTime = speed;
 		this.duration = duration;
-		this.currentTick = 1;
+		this.timer = new Timer();
+		this.currentTick =new AtomicInteger(1);
 	}
 
 	@Override
 	protected void initialize() {
 		System.out.println(getName()+ " Hello Book Store");
-		this.timer = new Timer();
-		this.timerTask = new TimerTask() {
+
+		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (currentTick < duration) {
-					System.out.println("Send Tick BroadCast: " + currentTick);
-					sendBroadcast(new TickBroadcast(currentTick));
-					currentTick++;
+				if (currentTick.get() < duration) {
+					System.out.println("Send Tick BroadCast: " + currentTick.get());
+					sendBroadcast(new TickBroadcast(currentTick.getAndIncrement()));
 				} else { //this the termination tick
-					System.out.println("Termination tick: " + currentTick);
-					sendBroadcast(new TickFinalBroadcast(currentTick));
+					System.out.println("Termination tick: " + currentTick.get());
+					sendBroadcast(new TickFinalBroadcast(currentTick.get()));
 					timer.cancel();
 				}
 			}
-		};
-		timer.scheduleAtFixedRate(timerTask, 1000, speedTime);  //time clockOn TODO - how much delay we start the timer.
-		terminate();
+		}, 0, speedTime);  //time clockOn TODO - how much delay we start the timer.
+		subscribeBroadcast(TickFinalBroadcast.class, (TickFinalBroadcast tick) -> {this.terminate();});
 	}
 }
 

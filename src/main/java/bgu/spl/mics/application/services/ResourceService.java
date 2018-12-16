@@ -57,7 +57,9 @@ public class ResourceService extends MicroService {
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{
 			//TODO - stop all the vhicle threads and put in all thier future- null .
 			for (Future<DeliveryVehicle> future:futureVector){
-				future.resolve(null);
+				if (!future.isDone()) {
+					future.resolve(null);
+				}
 				System.out.println("Vehicle dead");
 			}
 			terminate();

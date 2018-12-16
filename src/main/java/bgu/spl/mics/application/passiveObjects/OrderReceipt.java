@@ -88,4 +88,16 @@ public class OrderReceipt implements Serializable {
 	public int getProcessTick() {   // TOdO
 		return processTic;
 	}
+
+	public String toString() {
+		return "Receipt {" +
+				"id='" +orderId + '\'' +
+				", seller=" + seller +
+				", bookTitle='" + bookTitle + '\'' +
+				", price=" + price +
+				", issuedTic=" + issuedTic +
+				", orderTic=" + orderTic +
+				", processTic=" + processTic +
+				'}';
+	}
 }

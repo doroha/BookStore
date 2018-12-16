@@ -34,16 +34,19 @@ public class BookStoreRunner {
     private static int countThreads;
 
 
-    public static void main(String[] argss) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-        String[] args = new String[5];
-        args[0] = "src/main/java/sample.json";  //the location of the json file input
+        //when uploading final project you need to erase the 's' from argss, delete line number 41 and lines 241-244
+       // String[] args = new String[5];
+       // args[0] = "src/main/java/sample.json";  //the location of the json file input
 
         readJsonAndLoad(args[0]);  //Load the program
 
         runServices(microServices); //run the program
 
         stopProgram(args);  //Stop the program
+
+     //   writeToFile();
     }
 
     //------------Load-----------------------------//
@@ -235,19 +238,19 @@ public class BookStoreRunner {
     //------------Stop-----------------------------//
     private static void stopProgram(String[] args) {
 
-        args[1] = "Customers";
-        args[2] = "Books";
-        args[3] = "OrderReceipts";
-        args[4] = "MoneyRegister";
+//        args[1] = "Customers";
+//        args[2] = "Books";
+//        args[3] = "OrderReceipts";
+//        args[4] = "MoneyRegister";
 
         //kill All threads
-            for (Thread thread:threads) {
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+        }
 
         System.out.println("All threads are dead");
 
@@ -283,8 +286,89 @@ public class BookStoreRunner {
             I.printStackTrace();
         }
     }
-}
 
+
+//    private static void writeToFile() {
+//
+//        try {
+//            // Reading the object from a file
+//            FileInputStream file = new FileInputStream("Customers");
+//            ObjectInputStream in = new ObjectInputStream(file);
+//
+//            // Method for deserialization of object
+//            HashMap<Integer, Customer> customerHashMapCheck = new HashMap<>();
+//            customerHashMapCheck = (HashMap<Integer, Customer>) in.readObject();
+//
+//
+//            in.close();
+//            file.close();
+//
+//            System.out.println("Object has been deserialized ");
+//            for (Map.Entry<Integer, Customer> entry : customerHashMapCheck.entrySet()) {
+//                System.out.println("ID : " + entry.getKey());
+//                System.out.println(entry.getValue().toString());
+//
+//            }
+//        } catch (IOException ex) {
+//            System.out.println("IOException is caught");
+//        } catch (ClassNotFoundException ex) {
+//            System.out.println("ClassNotFoundException is caught");
+//        }
+//
+//
+//        try {
+//            // Reading the object from a file
+//            FileInputStream file = new FileInputStream("MoneyRegister");
+//            ObjectInputStream in = new ObjectInputStream(file);
+//            // Method for deserialization of object
+//            MoneyRegister mon = (MoneyRegister) in.readObject();
+//
+//
+//
+//            in.close();
+//            file.close();
+//
+//        } catch (IOException ex) {
+//            System.out.println("IOException is caught");
+//        } catch (ClassNotFoundException ex) {
+//            System.out.println("ClassNotFoundException is caught");
+//        }
+//
+//
+//        try {
+//            // Reading the object from a file
+//            FileInputStream file = new FileInputStream("Books");
+//            ObjectInputStream in = new ObjectInputStream(file);
+//
+//            // Method for deserialization of object
+//            HashMap<String, Integer> output = (HashMap<String, Integer>) in.readObject();
+//
+//            in.close();
+//            file.close();
+//        } catch (IOException ex) {
+//            System.out.println("IOException is caught");
+//        } catch (ClassNotFoundException ex) {
+//            System.out.println("ClassNotFoundException is caught");
+//        }
+//
+//        try {
+//            // Reading the object from a file
+//            FileInputStream file = new FileInputStream("OrderReceipts");
+//            ObjectInputStream in = new ObjectInputStream(file);
+//
+//            // Method for deserialization of object
+//            List<OrderReceipt> ret = (List<OrderReceipt>) in.readObject();
+//
+//            in.close();
+//            file.close();
+//
+//        } catch (IOException ex) {
+//            System.out.println("IOException is caught");
+//        } catch (ClassNotFoundException ex) {
+//            System.out.println("ClassNotFoundException is caught");
+//        }
+//    }
+}
 
 
 

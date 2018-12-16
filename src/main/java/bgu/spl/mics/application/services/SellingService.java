@@ -57,6 +57,7 @@ public class SellingService extends MicroService {
 										moneyRegister.chargeCreditCard(b.getCustomer(), price.intValue());
 										OrderReceipt receipt = new OrderReceipt(getName(), b.getCustomer().getId(), b.getBookTitle(), price.intValue(), b.getOrderTick(), b.getOrderTick(), b.getOrderTick());
 										moneyRegister.file(receipt);
+										b.getCustomer().file(receipt);
 										System.out.println(getName() + " The charge is done and there is recipt for pruches");
 										complete(b, receipt);
 										//Send Delivery
