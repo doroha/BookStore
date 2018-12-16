@@ -50,7 +50,6 @@ public class InventoryService extends MicroService{
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{
-			System.out.println(getName() + " Terminated");
 			terminate();
 		});
 		latch.countDown();

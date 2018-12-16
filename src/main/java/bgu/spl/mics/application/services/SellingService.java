@@ -59,6 +59,9 @@ public class SellingService extends MicroService {
 										moneyRegister.file(receipt);
 										System.out.println(getName() + " The charge is done and there is recipt for pruches");
 										complete(b, receipt);
+										//Send Delivery
+										System.out.println(getName() + " send DeliveryEvent");
+										sendEvent(new DeliveryEvent<DeliveryVehicle>(b.getCustomer().getDistance(), b.getCustomer().getAddress()));
 									} else {
 										System.out.println(getName() + " it is not possible to charge the customer");
 										complete(b, null);  // it is not possible to charge the customer
@@ -74,13 +77,16 @@ public class SellingService extends MicroService {
 						}
 					}
 				}
-			} else {System.out.println("No Micro-Service has registered to handle CheckAvailabilityEvent! The event cannot be processed");}
+			} else {
+				System.out.println("No Micro-Service has registered to handle CheckAvailabilityEvent! The event cannot be processed");
+				complete(b,null);
+			}
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick) ->{
-				System.out.println(getName()+ " Terminated");
 				terminate();
 		});
+
 		latch.countDown();
 	}
 }

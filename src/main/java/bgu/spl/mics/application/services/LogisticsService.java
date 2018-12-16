@@ -37,21 +37,26 @@ public class LogisticsService extends MicroService {
 			Future<Future<DeliveryVehicle>> futureVehicle = (Future<Future<DeliveryVehicle>>) sendEvent(new GetVehicleEvent(d));
 			if (futureVehicle!=null) {
 				DeliveryVehicle vehicle;
-				Future<DeliveryVehicle> future=futureVehicle.get();
-				vehicle= future.get();
-				System.out.println(getName()+ " get Vehicle");
-				if(vehicle!=null){
-					System.out.println(getName()+ " send deliver with: " + vehicle.getLicense());
-					vehicle.deliver(d.getAdress(),d.getDistance());   //the vehicle is sleep now fot the time of the deliver.
+				Future<DeliveryVehicle> future = futureVehicle.get();
+				vehicle = future.get();
+				System.out.println(getName() + " get Vehicle");
+				if (vehicle != null) {
+					System.out.println(getName() + " send deliver with: " + vehicle.getLicense());
+					vehicle.deliver(d.getAdress(), d.getDistance());   //the vehicle is sleep now fot the time of the deliver.
 					System.out.println("The Deliver is done");
-					complete(d,vehicle);
+					complete(d, vehicle);
 					sendEvent(new ReturenVehicleEvent(vehicle));  //send the free vehicle after his deliver back to the resorceHolder that he will keep it and relase new request
+				} else {
+					System.out.println("future-Null");
+					complete(d, null);
 				}
-			} else {System.out.println("No microservices registed to handle GetVehicleEvent");}
+			}	else {
+				System.out.println("future-Null");
+				complete(d, null);
+			}
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick)->{
-			System.out.println(getName() + " Terminated");
 			terminate();
 		});
 		latch.countDown();

@@ -46,28 +46,31 @@ public class APIService extends MicroService{
 		System.out.println(getName()+ " Hello Book Store");
 		subscribeBroadcast(TickBroadcast.class,(TickBroadcast t) -> {
 			Integer tick=t.getTick();
-			if (orders.containsKey(tick)){ //if i have an orders about this tick
-					for (String bookTitle:orders.get(tick)) { //for all the orders that need proccess in the same tick
-						BookOrderEvent<OrderReceipt> bookOrderEvent = new BookOrderEvent<OrderReceipt>(customer, bookTitle, tick.intValue());
-						System.out.println(getName() + " send BookOrderEvent event");
-						Future<OrderReceipt> future = (Future<OrderReceipt>) sendEvent(bookOrderEvent);
-						OrderReceipt receipt;
-						System.out.println(getName() + " recipt or null is coming");
-						if (future != null) {
-							receipt = future.get();
-							customer.file(receipt);
-							System.out.println("The Order is done and there is recipt"); // for us to dubug later
-							System.out.println(getName() + " send DeliveryEvent ");
-							sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(), customer.getAddress()));
-						} else {
-							System.out.println("No Micro-Service has registered to handle BookOrderEvent! The event cannot be processed");
-						}
+			if (orders.containsKey(tick)) { //if i have an orders about this tick
+			//	Vector<Future<OrderReceipt>> requesrOrders = new Vector<>();
+				for (String bookTitle : orders.get(tick)) { //for all the orders that need proccess in the same tick
+					BookOrderEvent<OrderReceipt> orderEvent = new BookOrderEvent<OrderReceipt>(customer, bookTitle, tick.intValue());
+					sendEvent(orderEvent);
+					System.out.println(getName() + " send BookOrderEvent event " + t.getTick().intValue());
+		//			requesrOrders.add(new Future<OrderReceipt>());
+				}
+//				for (Future<OrderReceipt> future : requesrOrders) {
+//					if (future != null) {
+//						OrderReceipt receipt;
+//						System.out.println(getName() + " recipt or null is coming");
+//						receipt = future.get();
+//						customer.file(receipt);
+//						System.out.println("The Order is done and there is recipt"); // for us to dubug later
+//						System.out.println(getName() + " send DeliveryEvent");
+//						sendEvent(new DeliveryEvent<DeliveryVehicle>(customer.getDistance(), customer.getAddress()));
+					} else {
+						System.out.println("No Micro-Service has registered to handle BookOrderEvent! The event cannot be processed");
 					}
-			}
+//				}
+//			}
 		});
 
 		subscribeBroadcast(TickFinalBroadcast.class,(TickFinalBroadcast tick) ->{
-			System.out.println(getName()+ " Terminated");
 			terminate();
 		});
 		latch.countDown();

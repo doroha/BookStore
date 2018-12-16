@@ -93,19 +93,23 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-
-		if (!microServiceMsg_HashMap.get(m).isEmpty()) {
-			for (Message message : microServiceMsg_HashMap.get(m)) {
-				eventFutre_HashMap.get(message).resolve(null);
-				eventFutre_HashMap.remove(message);
+		putNullInFutures(m);  //TODO-first!!!!
+		microServiceMsg_HashMap.remove(m);
+		removeMicroEvent(m);
+		removeMicroBroad(m);
+		}
+	private void putNullInFutures(MicroService m){
+		BlockingQueue<Message> messagesQ=microServiceMsg_HashMap.get(m);
+		if (!messagesQ.isEmpty()) {
+			for (Message message : messagesQ) {
+				Future<Object> future=eventFutre_HashMap.get(message);
+				future.resolve(null);
+				eventFutre_HashMap.remove(message,future);
 			}
 		}
-			microServiceMsg_HashMap.remove(m);
-			removeMicroEvent(m);
-			removeMicroBroad(m);
 		}
 
-	public void removeMicroEvent(MicroService microService) {
+	private void removeMicroEvent(MicroService microService) {
 		for (Class<? extends Event> event : msgEvent_Hashmap.keySet()) {
 			for (MicroService m:msgEvent_Hashmap.get(event)){
 				if (m.equals(microService)){
@@ -116,7 +120,7 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
-	public void removeMicroBroad(MicroService microService) {
+	private void removeMicroBroad(MicroService microService) {
 		for (Class<? extends Broadcast> broad : broadcast_Hashmap.keySet()) {
 			for (MicroService m : broadcast_Hashmap.get(broad)) {
 				if (m.equals(microService)) {
@@ -128,8 +132,8 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {  //Synchronized ???
+	public Message awaitMessage(MicroService m) throws InterruptedException {  // TODO -Synchronized ???
 		if (microServiceMsg_HashMap.get(m)==null) throw new IllegalStateException();
-		return microServiceMsg_HashMap.get(m).take();
+		return microServiceMsg_HashMap.get(m).take();  //TODO - DeadLock
 	}
 }

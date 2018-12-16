@@ -2,6 +2,8 @@ package bgu.spl.mics.application.passiveObjects;
 
 import bgu.spl.mics.Future;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Passive object representing the resource manager.
@@ -13,8 +15,8 @@ import java.util.*;
  * You can add ONLY private methods and fields to this class.
  */
 public class ResourcesHolder {
-	private Queue<DeliveryVehicle> freeVehicles; // Queue for the free vehicles.
-	private Queue<Future<DeliveryVehicle>> requestVehicles; // Queue for the futures for us that we know if there request to be processed.
+	private BlockingQueue<DeliveryVehicle> freeVehicles; // Queue for the free vehicles.
+	private BlockingQueue<Future<DeliveryVehicle>> requestVehicles; // Queue for the futures for us that we know if there request to be processed.
 
 	public static ResourcesHolder getInstance() {
 		return singletonHold.resourceInstance;
@@ -25,8 +27,8 @@ public class ResourcesHolder {
 	}
 
 	private ResourcesHolder(){
-		freeVehicles=new LinkedList<>();
-		requestVehicles=new LinkedList<>();
+		freeVehicles=new LinkedBlockingQueue<>();
+		requestVehicles=new LinkedBlockingQueue<>();
 	}
 
 	/**
@@ -39,7 +41,11 @@ public class ResourcesHolder {
 	public Future<DeliveryVehicle> acquireVehicle() {  //TODO write this function right so it will return the right object
 		Future<DeliveryVehicle> future=new Future<>();
 		if (freeVehicles.isEmpty()){  //if there is no release vehicle
-			requestVehicles.add(future); //add request for vhicle by setting future with null value that when we get free vhicle we resolve it.
+			try {
+				requestVehicles.put(future); //add request for vhicle by setting future with null value that when we get free vhicle we resolve it.
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		} else {  //there is free vhicle
 			future.resolve(freeVehicles.poll());
 		}
@@ -54,9 +60,14 @@ public class ResourcesHolder {
 	 */
 	public void releaseVehicle(DeliveryVehicle vehicle) {
 		if (!requestVehicles.isEmpty()) { //there is some request for delivery so we release this request with The released vehicle.
-			requestVehicles.poll().resolve(vehicle);
+			Future<DeliveryVehicle> request=requestVehicles.poll();
+			request.resolve(vehicle);
 		}else { //there is no request that waitings for and we add this vhicle to the Queue of the free vhicle
-			freeVehicles.add(vehicle);
+			try {
+				freeVehicles.put(vehicle);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -67,7 +78,11 @@ public class ResourcesHolder {
 	 */
 	public void load(DeliveryVehicle[] vehicles) {
 		for (DeliveryVehicle delivery:vehicles){
-			freeVehicles.add(delivery);
+			try {
+				freeVehicles.put(delivery);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

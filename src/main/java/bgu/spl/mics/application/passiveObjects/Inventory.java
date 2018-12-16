@@ -16,17 +16,17 @@ import java.util.*;
  */
 public class Inventory implements Serializable{
 
-  private Vector<BookInventoryInfo> booksColec;
+  private Vector<BookInventoryInfo> booksColec=new Vector<>();
 
 	public static Inventory getInstance() {
             return SingletonH.inventoryNew;
 	}
+
 	private static class SingletonH{
 	    private static Inventory inventoryNew= new Inventory();
     }
-	private Inventory(){
-	booksColec=new Vector<>();
-    }
+
+	private Inventory(){ }
 	/**
      * Initializes the store inventory. This method adds all the items given to the store
      * inventory.
@@ -49,12 +49,11 @@ public class Inventory implements Serializable{
      * 			The first should not change the state of the inventory while the 
      * 			second should reduce by one the number of books of the desired type.
      */
-	public OrderResult take (String book) {
+	public synchronized OrderResult take (String book) {
 		for (BookInventoryInfo b:booksColec) {
 			if (b.getBookTitle().equals(book) && b.getAmountInInventory() > 0) {
-				synchronized (b) {                  // TODO - lock the book ?
+					                							  // TODO - lock the book ?
 					b.setAmount(b.getAmountInInventory() - 1);
-				}
 				return OrderResult.valueOf("SUCCESSFULLY_TAKEN");
 			}
 		}
@@ -66,10 +65,10 @@ public class Inventory implements Serializable{
      * @param book 		Name of the book.
      * @return the price of the book if it is available, -1 otherwise.
      */
-	public int checkAvailabiltyAndGetPrice(String book) {
+	public synchronized int checkAvailabiltyAndGetPrice(String book) {
 		for (BookInventoryInfo b : booksColec) {
 			if (b.getBookTitle().equals(book)) {
-				return b.getPrice();
+					return b.getPrice();
 			}
 		}
 		return -1;

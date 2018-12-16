@@ -49,12 +49,11 @@ public class TimeService extends MicroService {
 					System.out.println("Termination tick: " + currentTick);
 					sendBroadcast(new TickFinalBroadcast(currentTick));
 					timer.cancel();
-					terminate();
-					// TODO-- ??? terminate the time service
 				}
 			}
 		};
 		timer.scheduleAtFixedRate(timerTask, 1000, speedTime);  //time clockOn TODO - how much delay we start the timer.
+		terminate();
 	}
 }
 

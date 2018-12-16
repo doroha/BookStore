@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class Future<T> {
 
-	private T result_F;
+	private boolean positive = false;
+	private T result_F=null;  //change here
 	public Future() {}
 	
 	/**
@@ -30,7 +31,7 @@ public class Future<T> {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			notifyAll();
+			//notifyAll();
 		return result_F;
 	}
 	
@@ -39,6 +40,7 @@ public class Future<T> {
      */
 	public synchronized void resolve (T result) {
 		this.result_F=result;
+		positive=true;
 		notifyAll();
 	}
 	
@@ -46,7 +48,7 @@ public class Future<T> {
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		return this.result_F!=null;
+		return positive;
 	}
 	
 	/**
